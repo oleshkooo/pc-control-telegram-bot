@@ -16,6 +16,8 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, ISimpleAudioVolume
 import screen_brightness_control as sbc
 # mouse
 import mouse
+# webcam
+import cv2
 
 
 # bot
@@ -23,12 +25,10 @@ my_id = 673723655
 TOKEN = '5428408141:AAFpzz6uw7VmMyVyqsKiOm5VhZehDFFRGOk'
 bot = telebot.TeleBot(TOKEN)
 
-
 # volume
 volDevices = AudioUtilities.GetSpeakers()
 volInterface = volDevices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 vol = cast(volInterface, POINTER(IAudioEndpointVolume))
-
 
 # sleep
 flag = False
@@ -48,6 +48,7 @@ def Help(message):
 *🚀  /start* - Start bot\n
 *ℹ️  /help* - Commands list\n
 *🏞  /screenshot* - Take screenshot\n
+*📸  /webcam* - Take webcam photo\n
 *🔊  /volume* - Set volume to [value]\n
 *☀️  /brightness* - Set brightness to [value]\n
 *🔒  /lock* - Lock your PC\n
@@ -70,6 +71,19 @@ def Screenshot(message):
     # bot.send_photo(message.chat.id, open('Screenshot.png', 'rb'))
     bot.send_document(message.chat.id, open('Screenshot.png', 'rb'))
     os.remove('Screenshot.png')
+
+
+
+@bot.message_handler(commands = ['webcam', 'cam'])
+def Webcam(message):
+    webcam = cv2.VideoCapture(0)
+    result, image = webcam.read()
+    if not result:
+        return bot.send_message(message.chat.id, 'No image detected. Please try again')
+    cv2.imwrite("Webcam.png", image)
+    # bot.send_photo(message.chat.id, open('Webcam.png', 'rb'))
+    bot.send_document(message.chat.id, open('Webcam.png', 'rb'))
+    os.remove('Webcam.png')
 
 
 
