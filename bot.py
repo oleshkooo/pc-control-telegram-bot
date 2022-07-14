@@ -3,7 +3,7 @@ import os
 import time
 import ctypes
 import platform
-# telegram bot
+# bot
 import telebot
 from telebot import types
 # screenshot
@@ -18,18 +18,20 @@ import screen_brightness_control as sbc
 import mouse
 
 
-
-# telegram bot
+# bot
 my_id = 673723655
 TOKEN = '5428408141:AAFpzz6uw7VmMyVyqsKiOm5VhZehDFFRGOk'
 bot = telebot.TeleBot(TOKEN)
-
 
 
 # volume
 volDevices = AudioUtilities.GetSpeakers()
 volInterface = volDevices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 vol = cast(volInterface, POINTER(IAudioEndpointVolume))
+
+
+# sleep
+flag = False
 
 
 
@@ -42,36 +44,36 @@ def Start(message):
 @bot.message_handler(commands=['help'])
 def Help(message):
     bot.send_message(message.chat.id, '''
-*ℹ️ Information about bot:*\n
-*🚀  /start* - start bot\n
-*ℹ️  /help* - help\n
-*🏞  /screenshot* - take screenshot\n
-*🔊  /volume* - set volume\n
-*☀️  /brightness* - set brightness\n
-*🔒  /lock* - lock your PC\n
-*🖱  /mouse* - set mouse position\n
-*💤  /shutdown* - shutdown your PC
-*🛑  /shutdown_cancel* - cancel shutdown\n
-*🔄  /reboot* - restart your PC
-*🛑  /reboot_cancel* - cancel restart PC\n
+*ℹ️  Information about bot:*\n
+*🚀  /start* - Start bot\n
+*ℹ️  /help* - Commands list\n
+*🏞  /screenshot* - Take screenshot\n
+*🔊  /volume* - Set volume to [value]\n
+*☀️  /brightness* - Set brightness to [value]\n
+*🔒  /lock* - Lock your PC\n
+*🖱  /mouse* - Set mouse position\n
+*⚠️  /shutdown* - Shutdown your PC\n
+*🔄  /reboot* - Restart your PC\n
+*💤  /sleep* - Hibernate your PC\n
     ''', parse_mode = 'Markdown')
 
 
 
-@bot.message_handler(commands = ['screenshot'])
+@bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     # if message.id != my_id:
     #     return InfoUser(message)
     bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
     bot.send_chat_action(message.chat.id, 'upload_photo')
     img = ImageGrab.grab()
-    img.save('screenshot.png')
-    bot.send_photo(message.chat.id, open('screenshot.png', 'rb'))
-    os.remove('screenshot.png')
+    img.save('Screenshot.png')
+    # bot.send_photo(message.chat.id, open('Screenshot.png', 'rb'))
+    bot.send_document(message.chat.id, open('Screenshot.png', 'rb'))
+    os.remove('Screenshot.png')
 
 
 
-@bot.message_handler(commands = ['volume'])
+@bot.message_handler(commands = ['volume', 'vol'])
 def Volume(message):
     # if message.id != my_id:
     #     return InfoUser(message)
@@ -86,7 +88,7 @@ def Volume_process(message):
         return bot.send_message(message.chat.id, 'Volume must be a number')
     volumeInt = int(volume)
     if volumeInt < 0 or volumeInt > 100:
-        return bot.send_message(message.chat.id, 'Volume must be > 0 and < 100')
+        return bot.send_message(message.chat.id, 'Volume must be *> 0* and *< 100*', parse_mode = 'Markdown')
     emoji = getVolumeEmoji(volumeInt)
     scalarVolume = volumeInt / 100
     vol.SetMasterVolumeLevelScalar(scalarVolume, None)
@@ -105,7 +107,7 @@ def getVolumeEmoji(volume):
 
 
 
-@bot.message_handler(commands = ['brightness'])
+@bot.message_handler(commands = ['brightness', 'bright'])
 def Brightness(message):
     # if message.id != my_id:
     #     return InfoUser(message)
@@ -120,7 +122,7 @@ def Brightness_process(message):
         return bot.send_message(message.chat.id, 'Brightness must be a number')
     brightnessInt = int(brightness)
     if brightnessInt < 0 or brightnessInt > 100:
-        return bot.send_message(message.chat.id, 'Brightness must be > 0 and < 100')
+        return bot.send_message(message.chat.id, 'Brightness must be *> 0* and *< 100*', parse_mode = 'Markdown')
     emoji = getBrightnessEmoji(brightnessInt)
     sbc.set_brightness(brightnessInt)
     bot.send_message(message.chat.id, f'{emoji} Brightness set to *{message.text}%*', parse_mode = 'Markdown')
@@ -164,43 +166,97 @@ def Info(message):
 
 
 
-@bot.message_handler(commands = ['shutdown'])
+@bot.message_handler(commands = ['shutdown', 'sd'])
 def Shutdown(message):
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     bot.send_message(message.chat.id, 'How many *seconds* to turn off the PC?', parse_mode = 'Markdown')
     bot.register_next_step_handler(message, Shutdown_process)
 def Shutdown_process(message):
-    # TODO inline button
     if not message.text.isdigit():
         return bot.send_message(message.chat.id, 'Time must be a number')
     seconds = int(message.text)
-    bot.send_message(message.chat.id, f'💤  Shutting down in *{seconds}s*', parse_mode = 'Markdown')
+    markupInlineCancelShutdown = types.InlineKeyboardMarkup()
+    btnCancelShutdown = types.InlineKeyboardButton(text = 'Cancel', callback_data = 'cancelShutdown')
+    markupInlineCancelShutdown.add(btnCancelShutdown)
+    bot.send_message(message.chat.id, f'⚠️  Shutting down in *{seconds}s*', parse_mode = 'Markdown', reply_markup = markupInlineCancelShutdown)
     os.system(f'shutdown -s -t {seconds}')
 
 
 
-@bot.message_handler(commands = ['reboot'])
+@bot.message_handler(commands = ['reboot', 'rb'])
 def Reeboot(message):
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     bot.send_message(message.chat.id, 'How many *seconds* to restart the PC?',parse_mode = 'Markdown')
     bot.register_next_step_handler(message, Reboot_process)
 def Reboot_process(message):
-    # TODO inline button
     if not message.text.isdigit():
         return bot.send_message(message.chat.id, 'Time must be a number')
     seconds = int(message.text)
-    bot.send_message(message.chat.id, f'🔄  Reboot in *{seconds}s*', parse_mode = 'Markdown')
+    markupInlineCancelReboot = types.InlineKeyboardMarkup()
+    btnCancelReboot = types.InlineKeyboardButton(text = 'Cancel', callback_data = 'cancelReboot')
+    markupInlineCancelReboot.add(btnCancelReboot)
+    bot.send_message(message.chat.id, f'🔄  Reboot in *{seconds}s*', parse_mode = 'Markdown', reply_markup = markupInlineCancelReboot)
     os.system(f'shutdown -r -t {seconds}')
 
 
 
-@bot.message_handler(commands = ['shutdown_cancel', 'reboot_cancel'])
-def ShutdownCancel(message):
-    os.system('shutdown /a')
-    bot.send_message(message.chat.id, '🛑  Shutdown or Reboot *canceled*', parse_mode = 'Markdown')
+@bot.message_handler(commands = ['sleep'])
+def Sleep(message):
+    global flag
+    flag = False
+    if platform.system() != "Windows":
+        return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
+    bot.send_message(message.chat.id, 'How many *seconds* to sleep?', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, Sleep_process)
+def Sleep_process(message):
+    global flag
+    if not message.text.isdigit():
+        return bot.send_message(message.chat.id, 'Time must be a number')
+    seconds = int(message.text)
+    markupInlineCancelSleep = types.InlineKeyboardMarkup()
+    btnCancelSleep = types.InlineKeyboardButton(text = 'Cancel', callback_data = 'cancelSleep')
+    markupInlineCancelSleep.add(btnCancelSleep)
+    bot.send_message(message.chat.id, f'💤  Sleeping in *{seconds}s*', parse_mode = 'Markdown', reply_markup = markupInlineCancelSleep)
+    for i in range(seconds):
+        time.sleep(1)
+        if flag == True:
+            flag = False
+            return
+    os.system('shutdown /h')
+
+
+
+# ! callback handler
+@bot.callback_query_handler(func = lambda call: True)
+def ShutdownCancel(call):
+    if call.data == 'cancelShutdown':
+        os.system('shutdown /a')
+        bot.send_message(call.message.chat.id, '🛑  Shutdown *canceled*', parse_mode = 'Markdown')
+    elif call.data == 'cancelReboot':
+        os.system('shutdown /a')
+        bot.send_message(call.message.chat.id, '🛑  Reboot *canceled*', parse_mode = 'Markdown')
+    elif call.data == 'cancelSleep':
+        global flag
+        flag = True
+        bot.send_message(call.message.chat.id, '🛑  Sleep *canceled*', parse_mode = 'Markdown')
 
 
 
 bot.polling(none_stop = True)
+
+
+# TODO:
+# check battery
+# open browser
+# open link
+# open in youtube
+# youtube fullscreen
+# youtube pause
+# youtube next video
+# timer
+# ip info
+# webcam photo
+# keylogger
+# spotify control
