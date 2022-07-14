@@ -1,6 +1,5 @@
 # system
 import os
-import re
 import time
 import ctypes
 import platform
@@ -17,19 +16,15 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, ISimpleAudioVolume
 import screen_brightness_control as sbc
 # mouse
 import mouse
-# webcam
-import cv2
 # batttery status
 import psutil
 # ip
 import socket
-# CPU
-import cpuinfo
 
 
 # bot
-my_id = 0
-TOKEN = '5428408141:AAFpzz6uw7VmMyVyqsKiOm5VhZehDFFRGOk'
+#! my_id = 
+#! TOKEN = ''
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -47,6 +42,7 @@ flag = False
 @bot.message_handler(commands = ['start'])
 def Start(message):
     bot.send_message(message.chat.id, 'Бот запущений')
+    
 
 
 @bot.message_handler(commands = ['help'])
@@ -55,8 +51,6 @@ def Help(message):
 *ℹ️  Information about bot:*\n
 *🚀  /start* - Start bot\n
 *ℹ️  /help* - Commands list\n
-*🏞  /screenshot* - Take screenshot\n
-*📸  /webcam* - Take webcam photo\n
 *🔊  /volume* - Set volume to [value]\n
 *☀️  /brightness* - Set brightness to [value]\n
 *🔒  /lock* - Lock your PC\n
@@ -66,40 +60,14 @@ def Help(message):
 *💤  /sleep* - Hibernate your PC\n
 *🔋  /battery* - Show battery status\n
 *🛰️  /ip* - Show your IP\n
+*🪪  /get_id * - Get your telegram ID\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
     ''', parse_mode = 'Markdown')
 
 
-
-@bot.message_handler(commands = ['screenshot', 'screen'])
-def Screenshot(message):
-    # if message.id != my_id:
-    #     return Warn(message)
-    bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
-    bot.send_chat_action(message.chat.id, 'upload_photo')
-    img = ImageGrab.grab()
-    img.save('Screenshot.png')
-    # bot.send_photo(message.chat.id, open('Screenshot.png', 'rb'))
-    bot.send_document(message.chat.id, open('Screenshot.png', 'rb'))
-    os.remove('Screenshot.png')
-
-
-
-@bot.message_handler(commands = ['webcam', 'cam'])
-def Webcam(message):
-    # if message.id != my_id:
-    #     return Warn(message)
-    webcam = cv2.VideoCapture(0)
-    result, image = webcam.read()
-    if not result:
-        return bot.send_message(message.chat.id, 'No image detected. Please try again')
-    bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
-    cv2.imwrite("Webcam.png", image)
-    # bot.send_photo(message.chat.id, open('Webcam.png', 'rb'))
-    bot.send_document(message.chat.id, open('Webcam.png', 'rb'))
-    os.remove('Webcam.png')
-
+#! * 🏞  /screenshot* - Take screenshot\n
+#! *📸  /webcam* - Take webcam photo\n
 
 
 @bot.message_handler(commands = ['volume', 'vol'])
@@ -247,6 +215,22 @@ def Sleep_process(message):
             flag = False
             return
     os.system('shutdown /h')
+    
+    
+    
+# ! callback handler
+@bot.callback_query_handler(func=lambda call: True)
+def ShutdownCancel(call):
+    if call.data == 'cancelShutdown':
+        os.system('shutdown /a')
+        bot.send_message(call.message.chat.id, '🛑  Shutdown *canceled*', parse_mode = 'Markdown')
+    elif call.data == 'cancelReboot':
+        os.system('shutdown /a')
+        bot.send_message(call.message.chat.id, '🛑  Reboot *canceled*', parse_mode = 'Markdown')
+    elif call.data == 'cancelSleep':
+        global flag
+        flag = True
+        bot.send_message(call.message.chat.id, '🛑  Sleep *canceled*', parse_mode = 'Markdown')
 
 
 
@@ -292,7 +276,7 @@ def PcInfo(message):
     msg += f'OS:  *{uname.system} {uname.release} {uname.version}*\n'
     msg += f'Name:  *{uname.node}*\n'
     # CPU
-    msg += f"Processor:  *{cpuinfo.get_cpu_info()['brand_raw']}*"
+    msg += f"Processor:  *{uname.processor}*"
     msg += f'Core:  *{psutil.cpu_count(logical = True)}*\n'
     # RAM
     msg += f'📊  RAM: *{getSize(psutil.virtual_memory().total)}*\n'
@@ -321,7 +305,12 @@ def PcStatus(message):
     msg += f'{getVolumeEmoji(volume)}  Volume:  *{volume}%*\n'
     bot.send_message(message.chat.id, msg, parse_mode = "markdown")
 
-
+def getSize(bytes, suffix="B"):
+    factor = 1024
+    for unit in ["", "K", "M", "G", "T", "P"]:
+        if bytes < factor:
+            return f"{bytes:.2f}{unit}{suffix}"
+        bytes /= factor
 
 
 
@@ -337,34 +326,17 @@ def Warn(message):
     bot.send_message(my_id, f'{msg}', parse_mode = 'Markdown')
 
 
+@bot.message_handler(commands = ['get_id', 'id'])
+def GetId(message):
+    bot.send_message(message.from_user.id, f'🪪 Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
 
-# ! callback handler
-@bot.callback_query_handler(func=lambda call: True)
-def ShutdownCancel(call):
-    if call.data == 'cancelShutdown':
-        os.system('shutdown /a')
-        bot.send_message(call.message.chat.id, '🛑  Shutdown *canceled*', parse_mode = 'Markdown')
-    elif call.data == 'cancelReboot':
-        os.system('shutdown /a')
-        bot.send_message(call.message.chat.id, '🛑  Reboot *canceled*', parse_mode = 'Markdown')
-    elif call.data == 'cancelSleep':
-        global flag
-        flag = True
-        bot.send_message(call.message.chat.id, '🛑  Sleep *canceled*', parse_mode = 'Markdown')
+if __name__ == '__main__': # чтобы код выполнялся только при запуске в виде сценария, а не при импорте модуля
+    try:
+       bot.polling(none_stop = True) # запуск бота
+    except Exception as e:
+       print(e) # или import traceback; traceback.print_exc() для печати полной инфы
+       time.sleep(15)
 
-
-
-# ! get size
-def getSize(bytes, suffix="B"):
-    factor = 1024
-    for unit in ["", "K", "M", "G", "T", "P"]:
-        if bytes < factor:
-            return f"{bytes:.2f}{unit}{suffix}"
-        bytes /= factor
-
-
-
-bot.polling(none_stop=True)
 
 
 # TODO:
@@ -372,6 +344,7 @@ bot.polling(none_stop=True)
 #* full info about pc
 #* ip info
 #? pc status
+#  screen shot
 # open browser
 # open link
 # open in youtube
