@@ -20,12 +20,11 @@ import mouse
 import psutil
 # ip
 import socket
-# libs
-from inputData import GetData,Data
+# modules
+from inputData import getData, Data
 
 
-# TODO:
-
+#? ToDo-list:
 # list of favorite programs
 # open link
 
@@ -36,15 +35,14 @@ from inputData import GetData,Data
 # pause sound / video
 # next/previous sound/video
 
-# webcam photo
 # keylogger
 
 #/ done ✅
-
 #* brightness up/down
 #* volume up/down
 
 #* screenshot
+#* webcam photo
 
 #* check battery
 #* get ip
@@ -66,7 +64,7 @@ from inputData import GetData,Data
 
 #? global variables
 #/ bot
-user = GetData()
+user = getData()
 bot = telebot.TeleBot(user.TOKEN)
 
 #/ volume
@@ -78,12 +76,13 @@ vol = cast(volInterface, POINTER(IAudioEndpointVolume))
 flag = False
 
 print('🚀 Bot launched')
-bot.send_message(user.ID, '🚀 Bot launched')
+# bot.send_message(user.ID, '🚀 Bot launched')
+
 
 
 @bot.message_handler(commands = ['start'])
 def Start(message):
-    bot.send_message(message.chat.id, '🚀 Bot launched')
+    bot.send_message(message.chat.id, '🚀  Bot launched')
 
 
 
@@ -94,6 +93,7 @@ def Help(message):
 *🚀  /start* - Start bot\n
 *ℹ️  /help* - Commands list\n
 *🏞  /screenshot* - Take screenshot\n
+*📸  /webcam* - Take webcam photo\n
 *🔊  /volume* - Set volume to [value]\n
 *☀️  /brightness* - Set brightness to [value]\n
 *🖱  /mouse* - Set mouse position\n
@@ -104,9 +104,9 @@ def Help(message):
 *🔋  /battery* - Show battery status\n
 *🛰️  /ip* - Show your IP\n
 *🆔  /getId * - Get your telegram ID\n
-# *⛔  /stopBot* - Stop bot\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
+*⛔  /stop* - Stop bot\n
     ''', parse_mode = 'Markdown')
 
 
@@ -121,6 +121,20 @@ def Screenshot(message):
         screen.shot(mon = -1, output = 'Screenshot.png')
     bot.send_document(message.chat.id, open('Screenshot.png', 'rb'))
     os.remove('Screenshot.png')
+
+
+
+@bot.message_handler(commands = ['webcam', 'cam'])
+def Webcam(message):
+    if message.chat.id != user.ID:
+        return Warning(message)
+    bot.send_chat_action(user.ID ,'upload_photo')
+    os.system('python webcam.py')
+    if not os.path.exists('./Webcam.png'):
+        return bot.send_message(message.chat.id, '*⛔  Error*, can\'t access camera', parse_mode = 'Markdown')
+    bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
+    bot.send_document(message.chat.id, open('Webcam.png', 'rb'))
+    os.remove('Webcam.png')
 
 
 
@@ -296,7 +310,7 @@ def chargingEmoji(status):
 
 
 @bot.message_handler(commands = ['ip'])
-def sendIP(message):
+def SendIP(message):
     if message.chat.id != user.ID:
         return Warning(message)
     ip = getIP()
@@ -391,14 +405,14 @@ def getID(message):
 
 
 
-@bot.message_handler(commands = ['stopBot'])
+@bot.message_handler(commands = ['stop'])
 def stopBot(message):
     if message.chat.id != user.ID:
         return Warning(message)
     bot.send_message(message.chat.id, '*Bot stopped* ✅', parse_mode = 'Markdown')
     bot.stop_polling()
-    print('Bot stopped ✅')
-    exit()
+    print('⛔ Bot stopped')
+    sys.exit()
 
 
 
