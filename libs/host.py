@@ -1,13 +1,11 @@
-# nodemon --exec python bot.py
-
 # system
 import os
 import time
 import ctypes
 import platform
 # bot
-import telebot
 from telebot import types
+import telebot
 # screenshot
 from mss import mss
 # volume
@@ -22,62 +20,71 @@ import mouse
 import psutil
 # ip
 import socket
-# binary file
-import pickle
+# libs
+from inputData import GetData,Data
 
 
-class Data:
-    ID = None
-    TOKEN = None
+# TODO:
 
-user = None
-bot = None
+# list of favorite programs
+# open link
 
-def InputProcess():
-    global bot,user
-    flag = False
-    user = Data()
-    while not flag:    
-        user.ID = input(' Enter your bot ID >>> ')
-        user.TOKEN = input(' Enter your bot token >>> ')
-        bot = telebot.TeleBot(user.TOKEN)
-        if bot and user.ID.isdigit():
-            user.ID = int(user.ID)
-            flag = True
-            break
-        print('incorrect ID or token\n')
+# open in youtube
+# spotify control
 
-if os.path.exists('data.bin') :
-    file = open('data.bin', 'rb')
-    user = pickle.load(file)
-    bot = telebot.TeleBot(user.TOKEN)
-    
-else:
-    file = open('data.bin', 'wb')
-    InputProcess()
-    pickle.dump(user, file)
-file.close()
+# open programm fullscreen
+# pause sound / video
+# next/previous sound/video
 
-    
+# webcam photo
+# keylogger
 
-#ID = 673723655
-#TOKEN = '5428408141:AAFpzz6uw7VmMyVyqsKiOm5VhZehDFFRGOk'
+#/ done ✅
+
+#* brightness up/down
+#* volume up/down
+
+#* screenshot
+
+#* check battery
+#* get ip
+#* get id
+
+#* pc info
+#* pc status
+
+#* lock pc
+#* shutdown pc
+#* reboot pc
+#* sleep pc
+#* cancel shutdown/reboot/sleep
+
+#* battery info
+
+#* stop bot
 
 
+#? global variables
+#/ bot
+user = GetData()
+bot = telebot.TeleBot(user.TOKEN)
 
-# volume
+#/ volume
 volDevices = AudioUtilities.GetSpeakers()
 volInterface = volDevices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 vol = cast(volInterface, POINTER(IAudioEndpointVolume))
 
-
-# sleep
+#/ bool variable for function "sleep"
 flag = False
+
+print('🚀 Bot launched')
+bot.send_message(user.ID, '🚀 Bot launched')
 
 
 @bot.message_handler(commands = ['start'])
 def Start(message):
     bot.send_message(message.chat.id, '🚀 Bot launched')
+
 
 
 @bot.message_handler(commands = ['help'])
@@ -97,94 +104,35 @@ def Help(message):
 *🔋  /battery* - Show battery status\n
 *🛰️  /ip* - Show your IP\n
 *🆔  /getId * - Get your telegram ID\n
-*🔃  /changeId* - Change ID\n
-*🔃  /changeToken* - Change token (*switching to a new bot*)\n
-*⛔  /stopBot* - Stop bot\n
+# *⛔  /stopBot* - Stop bot\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
     ''', parse_mode = 'Markdown')
 
 
-#! Хз чт працює
-@bot.message_handler(commands = ['changeId'])
-def changeID(message):
-    if message.chat.id != user.ID:
-       return Warn(message)
-    bot.send_message(message.chat.id, '🆔 Enter your *new ID*', parse_mode = 'Markdown')
-    bot.register_next_step_handler(message, changeID_process)
-def changeID_process(message):
-
-    if message.text.isdigit():
-        newID = int(message.text)
-        if newID == user.ID:
-            return bot.send_message(message.chat.id, 'You already have this ID')
-        if newID <= 0:
-            return bot.send_message(message.chat.id, 'ID must be *> 0*')
-        user.ID = newID
-        file = open('data.bin', 'wb')
-        pickle.dump(user, file)
-        bot.send_message(message.chat.id, ' *ID changed!* ✅', parse_mode = 'Markdown')
-        file.close()
-    else:
-        bot.send_message(message.chat.id, 'ID must be a number!')
-
-@bot.message_handler(commands = ['changeToken'])
-def changeToken(message):
-    if message.chat.id != user.ID:
-       return Warn(message)
-    bot.send_message(message.chat.id, '🆕 Enter your *new Token*', parse_mode = 'Markdown')
-    bot.register_next_step_handler(message, changeToken_process)
-def changeToken_process(message):
-    global bot
-    newToken = message.text
-    if newToken == user.TOKEN:
-        return bot.send_message(message.chat.id, 'You already have this token')
-    newBot = telebot.TeleBot(newToken)
-    if newBot:
-       
-        user.TOKEN = newToken
-        file = open('data.bin', 'wb')
-        pickle.dump(user, file)
-        file.close()
-        bot.send_message(message.chat.id, '*Token changed!* ✅ ', parse_mode = 'Markdown')
-        bot.send_message(message.chat.id, '*Bot stopped!* ✅', parse_mode = 'Markdown')
-        bot.stop_polling()
-        bot = newBot
-        bot.send_message(message.chat.id, '🚀 New bot launched')
-#**********************************************************************************************************************
-
 
 @bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     bot.send_chat_action(user.ID ,'upload_photo')
     bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
     with mss() as screen:
-        # screen.shot()
         screen.shot(mon = -1, output = 'Screenshot.png')
-    # bot.send_photo(message.chat.id, open('Screenshot.png', 'rb'))
     bot.send_document(message.chat.id, open('Screenshot.png', 'rb'))
     os.remove('Screenshot.png')
-
-
-
-# TODO webcam
 
 
 
 @bot.message_handler(commands = ['volume', 'vol'])
 def Volume(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     currentVolume = getCurrentVolume()
     emoji = getVolumeEmoji(currentVolume)
     bot.send_message(message.chat.id, f'{emoji} Current volume is *{currentVolume}%*', parse_mode = 'Markdown')
     bot.send_message(message.chat.id, 'Enter new volume:')
     bot.register_next_step_handler(message, Volume_process)
-
-
-
 def Volume_process(message):
     volume = message.text
     if not volume.isdigit():
@@ -213,7 +161,7 @@ def getVolumeEmoji(volume):
 @bot.message_handler(commands = ['brightness', 'bright'])
 def Brightness(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     currentBrightness = getCurrentBrightness()
     emoji = getBrightnessEmoji(currentBrightness)
     bot.send_message(message.chat.id, f'{emoji} Current brightness is *{currentBrightness}%*', parse_mode = 'Markdown')
@@ -241,16 +189,10 @@ def getBrightnessEmoji(brightness):
 
 
 
-# TODO mouse
-# @bot.message_handler(commands = ['mouse'])
-# def Mouse(message):
-
-
-
 @bot.message_handler(commands = ['lock'])
 def Lock(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     ctypes.windll.user32.LockWorkStation()
@@ -261,7 +203,7 @@ def Lock(message):
 @bot.message_handler(commands = ['shutdown', 'sd'])
 def Shutdown(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     bot.send_message(message.chat.id, 'How many *seconds* to turn off the PC?', parse_mode = 'Markdown')
@@ -281,7 +223,7 @@ def Shutdown_process(message):
 @bot.message_handler(commands = ['reboot', 'rb'])
 def Reeboot(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     bot.send_message(message.chat.id, 'How many *seconds* to restart the PC?', parse_mode = 'Markdown')
@@ -301,7 +243,7 @@ def Reboot_process(message):
 @bot.message_handler(commands = ['sleep'])
 def Sleep(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     global flag
     flag = False
     if platform.system() != "Windows":
@@ -330,7 +272,7 @@ def Sleep_process(message):
 @bot.message_handler(commands = ['battery'])
 def Battery(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     battery = getBattery()
     status = isCharging()
     msg = f'{getBatteryEmoji(battery)}  Battery level is *{battery}*%\n'
@@ -354,9 +296,9 @@ def chargingEmoji(status):
 
 
 @bot.message_handler(commands = ['ip'])
-def IP(message):
+def sendIP(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     ip = getIP()
     bot.send_message(message.chat.id, f'🛰️ Your *IP* is *{ip}*', parse_mode = 'Markdown')
 def getIP():
@@ -367,7 +309,7 @@ def getIP():
 @bot.message_handler(commands = ['info', 'pc', 'pc_info'])
 def PcInfo(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     uname = platform.uname()
 
     msg = '⚙️  *Info about your PC*\n\n'
@@ -388,7 +330,7 @@ def PcInfo(message):
 @bot.message_handler(commands = ['status', 'pc_status'])
 def PcStatus(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     virtualMem = psutil.virtual_memory()
     battery = getBattery()
     status = isCharging()
@@ -405,7 +347,6 @@ def PcStatus(message):
     msg += f'{getBrightnessEmoji(brightness)}  Brightness:  *{brightness}%*\n'
     msg += f'{getVolumeEmoji(volume)}  Volume:  *{volume}%*\n'
     bot.send_message(message.chat.id, msg, parse_mode = "markdown")
-
 def getSize(bytes, suffix="B"):
     factor = 1024
     for unit in ["", "K", "M", "G", "T", "P"]:
@@ -415,7 +356,7 @@ def getSize(bytes, suffix="B"):
 
 
 
-# ! callback handler
+#################/                    -| callback handler |-                    /#############################
 @bot.callback_query_handler(func = lambda call: True)
 def ShutdownCancel(call):
     if call.data == 'cancelShutdown':
@@ -431,8 +372,8 @@ def ShutdownCancel(call):
 
 
 
-# ! warning
-def Warn(message):
+
+def Warning(message):
     bot.send_chat_action(message.chat.id, 'typing')
     msg = f"Someone just used  *{message.text}*\n\n"
     msg += f"Username:  *@{message.from_user.username}*\n"
@@ -449,40 +390,16 @@ def getID(message):
     bot.send_message(message.from_user.id, f'🆔  Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
 
 
+
 @bot.message_handler(commands = ['stopBot'])
 def stopBot(message):
     if message.chat.id != user.ID:
-        return Warn(message)
+        return Warning(message)
     bot.send_message(message.chat.id, '*Bot stopped* ✅', parse_mode = 'Markdown')
     bot.stop_polling()
     print('Bot stopped ✅')
     exit()
 
-    
-if __name__ == '__main__':
-
-    try:
-        print('[BOT] 🚀 Bot launched ')
-        bot.polling(none_stop = True)
-    except Exception as e:
-        print(e)
-        time.sleep(15)
 
 
-
-# TODO:
-#* check battery
-#* full info about pc
-#* ip info
-#? pc status
-#  screen shot
-# open browser
-# open link
-# open in youtube
-# youtube fullscreen
-# youtube pause
-# youtube next video
-# timer
-#? webcam photo
-# keylogger
-# spotify control
+bot.polling(none_stop = True)
