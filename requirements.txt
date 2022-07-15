@@ -1,8 +1,6 @@
 pyTelegramBotAPI
-pyscreenshot
 pycaw
 screen-brightness-control
 mouse
-opencv-python
 psutil
-py-cpuinfo
+mss
