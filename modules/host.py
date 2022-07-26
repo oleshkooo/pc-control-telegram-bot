@@ -1,101 +1,73 @@
-################################################################################
-# system
+################################################################################ modules
+from inputData import getData, Data
+
+################################################################################ system
 import os
 import time
 import ctypes
 import platform
-################################################################################
-# bot
+
+################################################################################ bot
 from telebot import types
 import telebot
-################################################################################
-# screenshot
+
+################################################################################ __screenshot
 from mss import mss
-################################################################################
-# volume
-from ctypes import cast, POINTER
-from comtypes import CLSCTX_ALL
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-################################################################################
-# brightness
-import screen_brightness_control as sbc
-################################################################################
-# mouse
-import mouse
-################################################################################
-# battery status
-import psutil
-################################################################################
-# ip
-import socket
-################################################################################
-# keylogger
+
+################################################################################ __keylogger
 # ! pip install pynput
 import pynput
 from pynput.keyboard import Key, Listener
-# modules
-################################################################################
-from inputData import getData, Data
+
+################################################################################ __volume  __lock
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+################################################################################ __brightness
+import screen_brightness_control as sbc
+
+################################################################################ __prev  __playpause  __next  __fullscreen  __fullmovie  __close
+import pyautogui
+
+################################################################################ __browser  __search  __youtube
+import webbrowser
+
+################################################################################ __mouse
+import mouse
+
+################################################################################ __battery  __status
+import psutil
+
+################################################################################ __ip
+import socket
 
 
-#? ToDo-list:
+
+################################################################################ ToDo-list
 # list of favorite programs
-# open link
-
-# open in youtube
 # spotify control
 
-# open programm fullscreen
-# pause sound / video
-# next/previous sound/video
-
-# gui
 
 
-#/ done ✅
-#* brightness up/down
-#* volume up/down
-
-#* screenshot
-#* webcam photo
-#* keylogger
-
-#* check battery
-#* get ip
-#* get id
-
-#* pc info
-#* pc status
-
-#* lock pc
-#* shutdown pc
-#* reboot pc
-#* sleep pc
-#* cancel shutdown/reboot/sleep
-
-#* battery info
-
-#* stop bot
-
-
-
-#? global variables
-#/ bot
+################################################################################? global variables
+# bot
 user = getData()
 bot = telebot.TeleBot(user.TOKEN)
 
-#/ volume
+# volume
 volDevices = AudioUtilities.GetSpeakers()
 volInterface = volDevices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
 vol = cast(volInterface, POINTER(IAudioEndpointVolume))
 
-#/ sleep
+# sleep
 sleepFlag = False
 
-# / keylogger
+# keylogger
 keyloggerFlag = False
 count = 0
 keys = []
+
 
 
 print('🚀 Bot launched')
@@ -104,6 +76,7 @@ print('🚀 Bot launched')
 
 
 ################################################################################ start
+# __start
 @bot.message_handler(commands = ['start'])
 def Start(message):
     bot.send_message(message.chat.id, '🚀  Bot launched')
@@ -111,10 +84,11 @@ def Start(message):
 
 
 ################################################################################ help
+# __help
 @bot.message_handler(commands = ['help'])
 def Help(message):
     bot.send_message(message.chat.id, '''
-*ℹ️  Information about bot:*\n
+*ℹ️  Information about bot:*\n\n
 *🚀  /start* - Start bot\n
 *ℹ️  /help* - Commands list\n
 *🏞  /screenshot* - Take screenshot\n
@@ -122,14 +96,23 @@ def Help(message):
 *⌨️  /keylogger* - Start keylogger\n
 *🔊  /volume* - Set volume to [value]\n
 *☀️  /brightness* - Set brightness to [value]\n
+*⏪  /prev* - Previous track\n
+*⏯  /playpause* - Play/Pause track\n
+*⏩  /next* - Next track\n
+*🌐  /browser* - Open URL in browser\n
+*🔍  /search* - Search in browser\n
+*🎥  /youtube* - Search in youtube\n
+*📺  /fullscreen* - Fullscreenf for program\n
+*📺  /fullmovie* - Fullscreen for movie\n
+*❌  /close* - Close current program\n
 *🖱  /mouse* - Set mouse position\n
 *🔒  /lock* - Lock your PC\n
 *⚠️  /shutdown* - Shutdown your PC\n
 *🔄  /reboot* - Restart your PC\n
 *💤  /sleep* - Hibernate your PC\n
 *🔋  /battery* - Show battery status\n
-*🛰️  /ip* - Show your IP\n
-*🆔  /getId * - Get your telegram ID\n
+*🛰️  /ip* - Get your IP\n
+*🆔  /getid * - Get your telegram ID\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
 *⛔  /stop* - Stop bot\n
@@ -137,6 +120,7 @@ def Help(message):
 
 
 ################################################################################ screenshot
+# __screenshot
 @bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     if message.chat.id != user.ID:
@@ -152,6 +136,7 @@ def Screenshot(message):
 
 
 ################################################################################ webcam
+# __cam
 @bot.message_handler(commands = ['webcam', 'cam'])
 def Webcam(message):
     if message.chat.id != user.ID:
@@ -166,7 +151,8 @@ def Webcam(message):
 
 
 ################################################################################ keylogger
-@bot.message_handler(commands = ['keylogger', 'key', 'log'])
+# __keylogger
+@bot.message_handler(commands = ['keylogger', 'logger'])
 def Keylogger(message):
     if message.chat.id != user.ID:
         return Warn(message)
@@ -184,7 +170,6 @@ def onPress(key):
     global count, keys
     keys.append(key)
     count += 1
-    # print(f'{key} pressed')
     if count >= 1:
         writeFile(keys)
         count = 0
@@ -203,6 +188,8 @@ def writeFile(keys):
             #     f.write('\n')
             if k.find('enter') > 0:
                 f.write('[ENTER]\n')
+            elif k.find('space') > 0:
+                f.write(' ')
             elif k.find('Key.') != -1:
                 k = k.replace('Key.', '[') + ']'
                 f.write(k.upper())
@@ -210,7 +197,23 @@ def writeFile(keys):
                 f.write(k)
 
 
+################################################################################ write text
+@bot.message_handler(commands = ['write', 'text'])
+def WriteText(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    bot.send_message(message.chat.id, '💬  Enter text to *write*:', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, WriteText_process)
+def WriteText_process(message):
+    text = message.text
+    bot.send_chat_action(message.chat.id, 'typing')
+    bot.send_message(message.chat.id, f'*✏️  Writing text*  "{text}"', parse_mode = 'Markdown')
+    pyautogui.typewrite(text, interval = 0.05)
+
+
+
 ################################################################################ volume
+# __volume
 @bot.message_handler(commands = ['volume', 'vol'])
 def Volume(message):
     if message.chat.id != user.ID:
@@ -234,17 +237,14 @@ def Volume_process(message):
 def getCurrentVolume():
     return int(round(vol.GetMasterVolumeLevelScalar() * 100))
 def getVolumeEmoji(volume):
-    if volume == 0:
-        return '🔇'
-    elif volume <= 33:
-        return '🔈'
-    elif volume <= 66:
-        return '🔉'
-    else:
-        return '🔊'
+    if volume == 0: return '🔇'
+    elif volume <= 33: return '🔈'
+    elif volume <= 66: return '🔉'
+    else: return '🔊'
 
 
 ################################################################################ brightness
+# __brightness
 @bot.message_handler(commands = ['brightness', 'bright'])
 def Brightness(message):
     if message.chat.id != user.ID:
@@ -267,15 +267,120 @@ def Brightness_process(message):
 def getCurrentBrightness():
     return sbc.get_brightness()[0]
 def getBrightnessEmoji(brightness):
-    if brightness < 33:
-        return '🔅'
-    elif brightness < 66:
-        return '🔆'
-    else:
-        return '☀️'
+    if brightness < 33: return '🔅'
+    elif brightness < 66: return '🔆'
+    else: return '☀️'
+
+
+################################################################################ previous track
+# __prev
+@bot.message_handler(commands = ['previous', 'prev'])
+def Previous(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    pyautogui.press('prevtrack')
+    bot.send_message(message.chat.id, '*⏪  Previous track*', parse_mode = 'Markdown')
+
+
+################################################################################ play/pause
+# __playpause
+@bot.message_handler(commands = ['playpause', 'play', 'pause'])
+def Playpause(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    pyautogui.press('playpause')
+    bot.send_message(message.chat.id, '*⏯  Play/Pause track*', parse_mode = 'Markdown')
+
+
+################################################################################ next track
+# __next
+@bot.message_handler(commands = ['next', 'skip'])
+def Next(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    pyautogui.press('nexttrack')
+    bot.send_message(message.chat.id, '*⏩  Next track*', parse_mode = 'Markdown')
+
+
+################################################################################ __browser
+@bot.message_handler(commands = ['browser'])
+def Browser(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    bot.send_message(message.chat.id, 'Enter URL:', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, Browser_process)
+def Browser_process(message):
+    url = message.text
+    bot.send_message(message.chat.id, f'*🌐  Opening*  {url}', parse_mode = 'Markdown')
+    webbrowser.open(url, new = 2)
+    # --new
+    # 0: open in the same window
+    # 1: open in a new window
+    # 2: open in a new tab
+
+
+################################################################################ __search
+@bot.message_handler(commands = ['search'])
+def Search(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    bot.send_message(message.chat.id, 'Enter search query:', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, Search_process)
+def Search_process(message):
+    query = message.text
+    bot.send_message(message.chat.id, f'*🔍  Searching*  {query}', parse_mode = 'Markdown')
+    webbrowser.open(f'https://www.google.com/search?q={query}', new = 2)
+    # --new
+    # 0: open in the same window
+    # 1: open in a new window
+    # 2: open in a new tab
+
+
+################################################################################ __youtube
+@bot.message_handler(commands = ['youtube'])
+def Youtube(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    bot.send_message(message.chat.id, 'Enter search query:', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, Youtube_process)
+def Youtube_process(message):
+    query = message.text
+    bot.send_message(message.chat.id, f'*🎥  Searching*  "{query}"', parse_mode = 'Markdown')
+    webbrowser.open(f'https://www.youtube.com/results?search_query={query}', new = 2)
+    # --new
+    # 0: open in the same window
+    # 1: open in a new window
+    # 2: open in a new tab
+
+
+################################################################################ __fullscreen
+@bot.message_handler(commands = ['fullscreen'])
+def Fullscreen(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    pyautogui.press('f11')
+    bot.send_message(message.chat.id, '📺  *Program* is *fullscreen* now', parse_mode = 'Markdown')
+
+@bot.message_handler(commands = ['fullscreen_movie', 'fullmovie'])
+def FullscreenVideo(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    pyautogui.press('f')
+    bot.send_message(message.chat.id, '📺  *Movie* is *fullscreen* now', parse_mode = 'Markdown')
+
+
+
+################################################################################ close
+@bot.message_handler(commands = ['close'])
+def Close(message):
+    if message.chat.id != user.ID:
+        return Warn(message)
+    bot.send_message(message.chat.id, '*❌  Closing*  *program*', parse_mode = 'Markdown')
+    pyautogui.hotkey('altleft', 'f4')
 
 
 ################################################################################ lock
+# __lock
 @bot.message_handler(commands = ['lock'])
 def Lock(message):
     if message.chat.id != user.ID:
@@ -283,10 +388,11 @@ def Lock(message):
     if platform.system() != "Windows":
         return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
     ctypes.windll.user32.LockWorkStation()
-    bot.send_message(message.chat.id, '*Locked 🔒*', parse_mode = 'Markdown')
+    bot.send_message(message.chat.id, '*🔒  Locked*', parse_mode = 'Markdown')
 
 
 ################################################################################ shutdown
+# __shutdown
 @bot.message_handler(commands = ['shutdown', 'sd'])
 def Shutdown(message):
     if message.chat.id != user.ID:
@@ -307,6 +413,7 @@ def Shutdown_process(message):
 
 
 ################################################################################ reboot
+# __reboot
 @bot.message_handler(commands = ['reboot', 'rb'])
 def Reeboot(message):
     if message.chat.id != user.ID:
@@ -327,6 +434,7 @@ def Reboot_process(message):
 
 
 ################################################################################ sleep
+# __sleep
 @bot.message_handler(commands = ['sleep'])
 def Sleep(message):
     if message.chat.id != user.ID:
@@ -356,6 +464,7 @@ def Sleep_process(message):
 
 
 ################################################################################ battery
+# __battery
 @bot.message_handler(commands = ['battery'])
 def Battery(message):
     if message.chat.id != user.ID:
@@ -375,13 +484,12 @@ def getBatteryEmoji(battery):
 def isCharging():
     return psutil.sensors_battery().power_plugged
 def chargingEmoji(status):
-    if status:
-        return '⚡️'
-    else:
-        return '🔌'
+    if status: return '⚡️'
+    else: return '🔌'
 
 
 ################################################################################ ip
+# __ip
 @bot.message_handler(commands = ['ip'])
 def SendIP(message):
     if message.chat.id != user.ID:
@@ -393,12 +501,14 @@ def getIP():
 
 
 ################################################################################ get id
-@bot.message_handler(commands = ['getId', 'id'])
+# __id
+@bot.message_handler(commands = ['getid', 'id'])
 def getID(message):
     bot.send_message(message.from_user.id, f'🆔  Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
 
 
 ################################################################################ info
+# __info
 @bot.message_handler(commands = ['info', 'pc', 'pc_info'])
 def PcInfo(message):
     if message.chat.id != user.ID:
@@ -420,6 +530,7 @@ def PcInfo(message):
 
 
 ################################################################################ status
+# __status
 @bot.message_handler(commands = ['status', 'pc_status'])
 def PcStatus(message):
     if message.chat.id != user.ID:
@@ -449,6 +560,7 @@ def getSize(bytes, suffix="B"):
 
 
 ################################################################################ stop
+# __stop
 @bot.message_handler(commands = ['stop'])
 def stopBot(message):
     if message.chat.id != user.ID:
@@ -461,6 +573,7 @@ def stopBot(message):
 
 
 ################################################################################ / callback handler
+# __callback
 @bot.callback_query_handler(func = lambda call: True)
 def TurnOffCallback(call):
     if call.data == 'cancelShutdown':
@@ -487,6 +600,7 @@ def TurnOffCallback(call):
 
 
 ################################################################################ warn
+# __warn
 def Warn(message):
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_chat_action(user.ID, 'typing')
