@@ -1,4 +1,5 @@
 ################################################################################ modules
+from xml.dom.expatbuilder import parseString
 from inputData import getData, Data
 
 ################################################################################ system
@@ -79,6 +80,9 @@ keys = []
 MAX_SEARCH_LEN = 5
 ytResults = []
 
+# mouse
+curs = 50
+
 # functions
 def searchList(li, item):
     for i in range(len(li)):
@@ -146,11 +150,12 @@ btndown = types.KeyboardButton('⬇️')
 btnLeft = types.KeyboardButton('⬅️')
 btnRight = types.KeyboardButton('➡️')
 btnClick = types.KeyboardButton('🆗')
-btncurs = types.KeyboardButton('Вказати розмах курсора')
+btnCancel = types.KeyboardButton('⛔ Stop')
+btncurs = types.KeyboardButton('Specify the cursor range')
 mouse_keyboard.row(btnup)
 mouse_keyboard.row(btnLeft, btnClick, btnRight)
 mouse_keyboard.row(btndown)
-mouse_keyboard.row(btncurs)
+mouse_keyboard.row(btncurs, btnCancel)
 
 
 
@@ -669,23 +674,24 @@ def TurnOffCallback(call):
 # __warn
 def Warn(message):
     bot.send_chat_action(message.chat.id, 'typing')
-    bot.send_chat_action(user.ID, 'typing')
+    bot.send_chat_action(data.ID, 'typing')
     # other user
     bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
+
     # main
-    msg = f'*⚠️  Someone just used  {message.text}*\n\n'
-    if message.from_user.username != None:
-        msg += f'Username:  *@{message.from_user.username}*\n'
-    if message.from_user.first_name != None:
-        msg += f'First Name:  *{message.from_user.first_name}*\n'
-    if message.from_user.last_name != None:
-        msg += f'Last Name:  *{message.from_user.last_name}*\n'
-    msg += f'User Id:  *{message.from_user.id}*\n\n'
-    bot.send_message(user.ID, f'{msg}', parse_mode = 'Markdown')
+    # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
+    # if message.from_user.username != None:
+    #     msg += f'Username:  *@{message.from_user.username}*\n'
+    # if message.from_user.first_name != None:
+    #     msg += f'First Name:  *{message.from_user.first_name}*\n'
+    # if message.from_user.last_name != None:
+    #     msg += f'Last Name:  *{message.from_user.last_name}*\n'
+    # msg += f'User Id:  *{message.from_user.id}*\n\n'
+    # bot.send_message(data.ID, f'{msg}', parse_mode = 'Markdown')
 
 @bot.message_handler(commands = ['mouse'])
 def mouseControl(message):
-    bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard)
+    bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard, parse_mode = 'Markdown' )
     bot.register_next_step_handler(message, mouse_process)
     
 def mouse_process(message):
@@ -717,17 +723,23 @@ def mouse_process(message):
         mouse.click()
         bot.register_next_step_handler(message, mouse_process)
         # screen_process(message)
-
-    elif message.text == "Указать размах курсора":
-         bot.send_chat_action(user.ID, 'typing')
-         bot.send_message(user.ID, f"Укажите размах, в данный момент размах {str(curs)}px", reply_markup = mouse_keyboard)
-         bot.register_next_step_handler(message, mousecurs_settings)
+    elif message.text == '⛔':
+        bot.send_message(message.chat.id, '🛑  *Mouse control* is terminated', parse_mode = 'Markdown' )
+    elif message.text == 'Specify the cursor range':
+        bot.send_chat_action(message.chat.id, 'typing')
+        bot.send_message(message.chat.id, f"Specify a new cursor range, now this value is equal to *{str(curs)}px*", parse_mode = 'Markdown')
+        bot.register_next_step_handler(message, mousecurs_settings)
+        
 def mousecurs_settings(message):
     global curs
     if message.text.isdigit():
         curs = int(message.text)
+        bot.send_message(message.chat.id, f"✅ Changed successfully",reply_markup = mouse_keyboard)
+        bot.register_next_step_handler(message, mouse_process)
     else:
-        bot.send_message(user.ID, "Incorrect value", reply_markup = mouse_keyboard)
+        bot.send_message(message.chat.id, "⛔ Incorrect value",reply_markup = mouse_keyboard)
+        bot.register_next_step_handler(message, mouse_process)
+        
 
 ################################################################################ infinite polling
 bot.polling(none_stop = True)
