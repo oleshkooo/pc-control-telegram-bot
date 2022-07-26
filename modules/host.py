@@ -683,21 +683,51 @@ def Warn(message):
     msg += f'User Id:  *{message.from_user.id}*\n\n'
     bot.send_message(user.ID, f'{msg}', parse_mode = 'Markdown')
 
-#Клавиатура мышь
-mouse_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
-btnup = types.KeyboardButton('⬆️')
-btndown = types.KeyboardButton('⬇️')
-btnLeft = types.KeyboardButton('⬅️')
-btnRight = types.KeyboardButton('➡️')
-btnClick = types.KeyboardButton('🆗')
-btnback = types.KeyboardButton('Прибрати кнопки')
-btncurs = types.KeyboardButton('Вказати розмах курсора')
-mouse_keyboard.row(btnup)
-mouse_keyboard.row(btnLeft, btnClick, btnRight)
-mouse_keyboard.row(btndown)
-mouse_keyboard.row(btnback, btncurs)
+@bot.message_handler(commands = ['mouse'])
+def mouseControl(message):
+    bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard)
+    bot.register_next_step_handler(message, mouse_process)
+    
+def mouse_process(message):
+    if message.text == "⬆️":
+        currentMouseX,  currentMouseY  =  mouse.get_position()
+        mouse.move(currentMouseX,  currentMouseY - curs)
+        bot.register_next_step_handler(message, mouse_process)
+        # screen_process(message)
 
+    elif message.text == "⬇️":
+        currentMouseX,  currentMouseY  =  mouse.get_position()
+        mouse.move(currentMouseX,  currentMouseY + curs)
+        bot.register_next_step_handler(message, mouse_process)
+        # screen_process(message)
 
+    elif message.text == "⬅️":
+        currentMouseX,  currentMouseY  =  mouse.get_position()
+        mouse.move(currentMouseX - curs,  currentMouseY)
+        bot.register_next_step_handler(message, mouse_process)
+        # screen_process(message)
+
+    elif message.text == "➡️":
+        currentMouseX,  currentMouseY  =  mouse.get_position()
+        mouse.move(currentMouseX + curs,  currentMouseY)
+        bot.register_next_step_handler(message, mouse_process)
+        # screen_process(message)
+
+    elif message.text == "🆗":
+        mouse.click()
+        bot.register_next_step_handler(message, mouse_process)
+        # screen_process(message)
+
+    elif message.text == "Указать размах курсора":
+         bot.send_chat_action(user.ID, 'typing')
+         bot.send_message(user.ID, f"Укажите размах, в данный момент размах {str(curs)}px", reply_markup = mouse_keyboard)
+         bot.register_next_step_handler(message, mousecurs_settings)
+def mousecurs_settings(message):
+    global curs
+    if message.text.isdigit():
+        curs = int(message.text)
+    else:
+        bot.send_message(user.ID, "Incorrect value", reply_markup = mouse_keyboard)
 
 ################################################################################ infinite polling
 bot.polling(none_stop = True)
