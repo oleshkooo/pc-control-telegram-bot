@@ -8,10 +8,11 @@ import pickle
 import atexit
 from os.path import abspath
 
+
 class Data:
     def __init__(self):
-        self.ID = None
-        self.TOKEN = None
+        self.users = []
+        self.TOKEN = ''
 
 
 #!!! Якшо юзати прогу, для коректної роботи необхідно дадати одну крапку ->> -| '../' |- )
@@ -19,46 +20,44 @@ class Data:
 #!              |
 #!              V        
 PATH = abspath('../') + '\\data\\data.bin'
-flag = False
 
 def readFromFile():
     file = open(PATH, 'rb')
-    user = pickle.load(file)
+    data = pickle.load(file)
     file.close()
-    return user
+    return data
 
 
 #! Якшо токен введено не коректоно то програ крашнеться. Треба придумати якусь перевірку на коректність токена та ID
 
 def inputProcess():
-    global flag
-    user = Data()
-       
-    while not flag:    
-        user.ID = input('[BOT] Enter your ID >>> ')
-        user.TOKEN = input('[BOT] Enter bot TOKEN >>> ')
-        bot = telebot.TeleBot(user.TOKEN)
-        if bot and user.ID.isdigit():
-            user.ID = int(user.ID)
-            bot.stop_polling()
-            flag = True
+
+    data = Data()
+
+
+    while True:
+        username = input('[BOT] Enter permitted username (type \'-\' to stop) >>> ')
+        if username != '-':
+            data.users.append(username)
+        elif username == '-' and len(data.users) > 0: 
             break
-        print('⛔ Incorrect ID or token\n')
+
+    while True:
+        data.TOKEN = input('\n[BOT] Enter bot TOKEN >>> ')
+        bot = telebot.TeleBot(data.TOKEN)
+        if bot:
+            bot.stop_polling()
+            break
+        print('⛔ Incorrect Token\n')
 
     file = open(PATH, 'wb')
-    pickle.dump(user, file)
+    pickle.dump(data, file)
     file.close()
-    return user
+    return data
 
 def getData():
     if os.path.exists(PATH):
-        user = readFromFile()
+        data = readFromFile()
     else:
-        user = inputProcess()
-    return user
-
-# def exitHandler():
-#     if not flag:
-#         os.remove(PATH)
-
-# atexit.register(exitHandler)
+        data = inputProcess()
+    return data

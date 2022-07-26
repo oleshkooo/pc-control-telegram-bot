@@ -1,0 +1,50 @@
+{
+    "result":[
+       {
+          "type":"video",
+          "id":"1D5cxbDbKMc",
+          "title":"Top 50 Most Popular Songs by NCS | No Copyright Sounds",
+          "publishedTime":"1 year ago",
+          "duration":"3:04:58",
+          "viewCount":{
+             "text":"16,117,651 views",
+             "short":"16M views"
+          },
+          "thumbnails":[
+             {
+                "url":"https://i.ytimg.com/vi/1D5cxbDbKMc/hqdefault.jpg?sqp=-oaymwEcCOADEI4CSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDDcH28HFSQhO6VfEmnhhd8xtmvng",
+                "width":480,
+                "height":270
+             }
+          ],
+          "richThumbnail":{
+             "url":"https://i.ytimg.com/an_webp/1D5cxbDbKMc/mqdefault_6s.webp?du=3000&sqp=COjRgJcG&rs=AOn4CLAtLuCGzy1V5ia2CEVVDiXc-ZvEng",
+             "width":320,
+             "height":180
+          },
+          "descriptionSnippet":[
+             {
+                "text":"0:00 - 1. Alan Walker - Fade 4:20 - 2. Cartoon - On & On (feat. Daniel Levi) 7:48 - 3. Alan Walker - Spectre 11:33 - 4. DEAF KEV\\xa0..."
+             }
+          ],
+          "channel":{
+             "name":"Juice NCS",
+             "id":"UCx4eMs7aMyTRRXM5N3xNLsQ",
+             "thumbnails":[
+                {
+                   "url":"https://yt3.ggpht.com/ytc/AKedOLQs-rUqPPZdgKVzTf3hi9IV6mTX5RfS-dAhdXbNMw=s68-c-k-c0x00ffffff-no-rj",
+                   "width":68,
+                   "height":68
+                }
+             ],
+             "link":"https://www.youtube.com/channel/UCx4eMs7aMyTRRXM5N3xNLsQ"
+          },
+          "accessibility":{
+             "title":"Top 50 Most Popular Songs by NCS | No Copyright Sounds by Juice NCS 1 year ago 3 hours, 4 minutes 16,117,651 views",
+             "duration":"3 hours, 4 minutes, 58 seconds"
+          },
+          "link":"https://www.youtube.com/watch?v=1D5cxbDbKMc",
+          "shelfTitle":"None"
+       }
+    ]
+}
