@@ -19,7 +19,7 @@ class Data:
 #!!! Для компіляції використовувати './'
 #!              |
 #!              V        
-PATH = abspath('../') + '\\data\\data.bin'
+PATH = abspath('./') + '\\data\\data.bin'
 
 def readFromFile():
     file = open(PATH, 'rb')

