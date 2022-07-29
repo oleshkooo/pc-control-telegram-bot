@@ -1,5 +1,5 @@
 ################################################################################ modules
-from dataclasses import replace
+from importlib.resources import path
 from xml.dom.expatbuilder import parseString
 from inputData import getData, Data
 
@@ -51,13 +51,19 @@ import psutil
 ################################################################################ __ip
 import socket
 
+################################################################################ __write to file
+import pickle
 
+################################################################################ __spotify
+import spotipy
+
+################################################################################ __download flie from browser
+import pySmartDL
+
+################################################################################ __message box
 
 ################################################################################ ToDo-list
-# list of favorite programs
 # spotify control
-
-
 
 ################################################################################? global variables
 # bot
@@ -83,6 +89,9 @@ ytResults = []
 
 # mouse
 curs = 50
+
+# Message Box
+MessageBox = ctypes.windll.user32.MessageBoxW
 
 
 # functions
@@ -122,6 +131,10 @@ def Help(message):
 *⏪  /prev* - Previous track\n
 *⏯  /playpause* - Play/Pause track\n
 *⏩  /next* - Next track\n
+*➕ /add_app* - Add application to list\n
+*➖ /remove_app* - Remove application from list\n
+*📖 /app_list* - List of applications\n
+*👟 /open_app [name app]* - Open application\n
 *🌐  /browser* - Open URL in browser\n
 *🔍  /search* - Search in browser\n
 *▶️  /youtube* - Search in youtube\n
@@ -129,9 +142,11 @@ def Help(message):
 *📺  /fullmovie* - Fullscreen for movie\n
 *⬆️  /download* - Download file from pc\n
 *⬇️  /upload* - Upload file to pc\n
+*🕸️  /download_url* - Download file from url\n
 *👨‍💻  /cmd* \[command] - run command\n
 *🔼  /pgup* - Page up\n
 *🔽  /pgdn* - Page down\n
+*💀  /kill* - Kill process\n
 *❌  /close* - Close current program\n
 *🖱  /mouse* - Set mouse position\n
 *🔒  /lock* - Lock your PC\n
@@ -141,6 +156,7 @@ def Help(message):
 *🔋  /battery* - Show battery status\n
 *🛰️  /ip* - Get your IP\n
 *🆔  /getid * - Get your telegram ID\n
+*🗳️  /msgbox* - Displays a message on the PC screen\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
 *⛔  /stop* - Stop bot\n
@@ -344,6 +360,86 @@ def Next(message):
         return Warn(message)
     pyautogui.press('nexttrack')
     bot.send_message(message.chat.id, '*⏩  Next track*', parse_mode = 'Markdown')
+
+
+
+################################################################################* __add to dict
+@bot.message_handler(commands = ['add_app'])
+def addToDict(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    bot.send_message(message.chat.id,f'📝 Enter the application *path*',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message,getPath_process)
+def getPath_process(message):
+    global path
+    path = message.text 
+    if not os.path.exists(path):
+        bot.send_message(message.chat.id, "⛔ The *path* is *incorrect* or the *file does not exist*",parse_mode = 'Markdown')
+        return
+    bot.send_message(message.chat.id,f'📝 Enter the *name* of the application',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message,getName_process)  
+def getName_process(message):
+    name = message.text
+    dict = {name : path}
+    data.dict = {**data.dict,**dict}
+    bot.send_message(message.chat.id,f'✅ The *{name}* has been successfully added to the list',parse_mode = 'Markdown')
+    
+    writeToFile()
+
+
+################################################################################* __open app
+@bot.message_handler(commands = ['app'])
+def openApp(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    if len(data.dict) == 0:
+        bot.send_message(message.chat.id, '⛔ The *dictionary* is empty',parse_mode = 'Markdown')
+        return
+    
+    name = message.text.replace('/app ','')
+    try:
+        path = data.dict[name]
+        os.system(f"\"{path}\"")
+        bot.send_message(message.chat.id, f'✅ *{name}* successfully opened',parse_mode = 'Markdown')
+    except:
+        bot.send_message(message.chat.id, f'⛔ *{name}* is *not found*',parse_mode = 'Markdown')
+
+
+################################################################################* __list apps
+@bot.message_handler(commands = ['apps'])
+def listApps(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    if len(data.dict) == 0:
+        bot.send_message(message.chat.id, '⛔ The *dictionary* is empty',parse_mode = 'Markdown')
+    else:
+        markupInline = types.InlineKeyboardMarkup()
+        for key in data.dict:
+            callback = key
+            btn = types.InlineKeyboardButton(text = f'{key}',callback_data = callback)
+            markupInline.add(btn)
+        bot.send_message(message.chat.id,'📃 List of applications:',parse_mode = 'Markdown',reply_markup = markupInline)
+
+
+
+################################################################################* __remove from the list
+@bot.message_handler(commands = ['remove_app'])
+def removeFromDict(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    if len(data.dict) == 0:
+        bot.send_message(message.chat.id, '⛔ The *dictionary* is empty',parse_mode = 'Markdown')
+        return
+    bot.send_message(message.chat.id,'Enter the name of the program you want to remove',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message,removeFromDict_process)
+def removeFromDict_process(message):
+    name = message.text
+    try:
+        del data.dict[name]
+        bot.send_message(message.chat.id, f'✅ *{name}* successfully removed',parse_mode = 'Markdown')
+        writeToFile()
+    except:
+        bot.send_message(message.chat.id, f'⛔ *{name}* is *not found*',parse_mode = 'Markdown')
 
 
 
@@ -639,7 +735,6 @@ def uploadFile(message):
         return Warn(message)
     bot.send_message(message.chat.id,'💾 Send *file*',parse_mode = 'Markdown')
     bot.register_next_step_handler(message,uploadFile_process)
-    
 def uploadFile_process(message): 
     bot.send_chat_action(message.chat.id, 'typing')
     try:
@@ -664,7 +759,6 @@ def downloadFile(message):
     bot.register_next_step_handler(message,downloadFile_process)
 def downloadFile_process(message):
     bot.send_chat_action(message.chat.id, 'typing')
-
     try:
         path = message.text
         if os.path.exists(path):
@@ -679,15 +773,33 @@ def downloadFile_process(message):
         bot.send_message(message.chat.id, "⛔ An *error* occurred, probably the path is not specified correctly",parse_mode = 'Markdown')
 
 
+@bot.message_handler(commands = ['download_url'])
+def downloadUrl(message):
+    bot.send_message(message.chat.id,'🔗 Enter the *URL*',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message,downloadUrl_process)
+def downloadUrl_process(message):
+    bot.send_chat_action(message.chat.id, 'typing')
+    try:
+        path = os.path.expanduser('~') + '\\downloads\\'
+        url = message.text
+        
+        obj = pySmartDL(url, path, progress_bar = False)
+        obj.start()
+        
+        bot.send_message(message.chat.id, "⌛️ File is loading, please wait...")
 
+        bot.send_message(message.chat.id, "✅ Successfully downloaded\n\n🛣️ Path to the file: {path}")    
+    except:
+        bot.send_message(message.chat.id, "⛔ An *error* occurred, probably the path is not specified correctly",parse_mode = 'Markdown')
+     
+     
+     
 ################################################################################* __cmd
 @bot.message_handler(commands = ['cmd'])
 def cmd(message):
     if not searchList(data.users, message.from_user.username):
         return Warn(message)
-    
     command = message.text.replace('/cmd','')
-    
     if command == '' or command.find('cmd') == 1:
         bot.send_message(message.chat.id, '⚠️  The */cmd* command requires a parameter', parse_mode = 'Markdown')
     elif not os.system(command) and not command == 'cmd':
@@ -749,13 +861,24 @@ def TurnOffCallback(call):
         bot.send_document(call.message.chat.id, open('Logs.txt', 'rb'))
         os.remove('Logs.txt')
 
+    # apps
+    for key in data.dict:
+        if call.data == key:
+            try:
+                path = data.dict[key]
+                os.system(f"\"{path}\"")
+                bot.send_message(call.message.chat.id, f'✅ {key} successfully opened',parse_mode = 'Markdown')
+                writeToFile()
+            except:
+                  bot.send_message(call.message.chat.id, f'⛔ *{key}* is *not found*',parse_mode = 'Markdown')
+
     # youtube
     global ytResults
     for index in range(MAX_SEARCH_LEN):
         if len(ytResults) == 0: return
         if (call.data == f'ytSearch_{index}'):
             openInYoutube(ytResults[index]['link'])
-
+    
 
 
 #!############################################################################### __warn | |
@@ -763,10 +886,8 @@ def Warn(message):
     pass
 #     bot.send_chat_action(message.chat.id, 'typing')
 #     bot.send_chat_action(data.ID, 'typing')
-    
 #     # other user
 #     bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
-
 #     # main
 #     # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
 #     # if message.from_user.username != None:
@@ -786,7 +907,6 @@ def mouseControl(message):
         return Warn(message)
     bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard, parse_mode = 'Markdown' )
     bot.register_next_step_handler(message, mouse_process)
-    
 def mouse_process(message):
     if message.text == "⬆️":
         currentMouseX,  currentMouseY  =  mouse.get_position()
@@ -833,6 +953,47 @@ def mousecurs_settings(message):
         bot.send_message(message.chat.id, "⛔ Incorrect value",reply_markup = mouse_keyboard)
         bot.register_next_step_handler(message, mouse_process)
 
+
+
+################################################################################* __kill process
+@bot.message_handler(commands = ['kill'])
+def kill(message):
+    if not searchList(data.users, message.from_user.username):
+        return Warn(message)
+    bot.send_message(message.chat.id,'💀 Enter the *name* of the *process* you want to *kill*:',parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, kill_process)
+def kill_process(message):
+    bot.send_chat_action(message.chat.id, 'typing')
+    
+    if not os.system("taskkill /IM " + message.text + " -F"):
+        bot.send_message(message.chat.id,f'💀🔪🩸 The {message.text} process is killed', parse_mode = 'Markdown')
+    else:
+        bot.send_message(message.chat.id,'⛔ Process not found',parse_mode = 'Markdown')
+
+
+
+################################################################################* message box
+@bot.message_handler(commands = ['msgbox'])
+def msgbox(message):
+    bot.send_message(message.chat.id, '📝 Enter the text that should be displayed on the screen')
+    bot.register_next_step_handler(message, msgbox_process)
+def msgbox_process(message):
+    bot.send_chat_action(message.chat.id, 'typing')
+    try:
+        MessageBox(None, message.text, 'PC TOOL', 0)
+        bot.send_message(message.chat.id, f'📕 Message with text is *closed*')
+    except:
+        bot.send_message(message.chat.id, "⛔ *ERROR*", parse_mode = 'Markdown')
+
+
+
+################################################################################* write to file
+def writeToFile():
+    path = os.path.abspath('./') + '\\data\\data.bin'
+    
+    file = open(path, 'wb')
+    pickle.dump(data, file)
+    file.close()
 
 
 ################################################################################ infinite polling
