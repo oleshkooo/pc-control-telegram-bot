@@ -1,64 +1,30 @@
-
-#* Тимчасова версія введення даних до програми через консоль
-#* Після створення графічного інтерфейсу потрібно замінити введення даних
-
 import os
-import telebot
 import pickle
-import atexit
-from os.path import abspath
-
+import ctypes
 
 class Data:
     def __init__(self):
-        self.users = []
+        self.USER = ''
         self.TOKEN = ''
         self.dict = {}
 
-
-#!!! Якшо юзати прогу, для коректної роботи необхідно дадати одну крапку ->> -| '../' |- )
-#!!! Для компіляції використовувати './'
-#!              |
-#!              V        
-PATH = abspath('./') + '\\data\\data.bin'
-
-def readFromFile():
-    file = open(PATH, 'rb')
-    data = pickle.load(file)
-    file.close()
-    return data
-
-
-#! Якшо токен введено не коректоно то програ крашнеться. Треба придумати якусь перевірку на коректність токена та ID
-
-def inputProcess():
-
-    data = Data()
-
-
-    while True:
-        username = input('[BOT] Enter permitted username (type \'-\' to stop) >>> ')
-        if username != '-':
-            data.users.append(username)
-        elif username == '-' and len(data.users) > 0: 
-            break
-
-    while True:
-        data.TOKEN = input('\n[BOT] Enter bot TOKEN >>> ')
-        bot = telebot.TeleBot(data.TOKEN)
-        if bot:
-            bot.stop_polling()
-            break
-        print('⛔ Incorrect Token\n')
-
-    file = open(PATH, 'wb')
-    pickle.dump(data, file)
-    file.close()
-    return data
-
 def getData():
-    if os.path.exists(PATH):
-        data = readFromFile()
-    else:
-        data = inputProcess()
-    return data
+    MessageBox = ctypes.windll.user32.MessageBoxW
+    PATH = os.path.expanduser('~') + '\\AppData\\Local\\PC Control Bot Data\\data.bin'
+    if os.path.exists(PATH): 
+        file = open(PATH, 'rb')
+        data = pickle.load(file)
+        if data.USER == None and data.TOKEN == None:
+            MessageBox(0, "ERROR: Token and Username not found\n Please enter your Username and Token in the settings", "PC Control Bot", 0)
+            return None
+        elif data.USER == None:
+            MessageBox(0, "ERROR: Username not found\n Please enter your Username in the settings", "PC Control Bot", 0)
+            return None
+        elif data.TOKEN == None:
+            MessageBox(0, "ERROR: Token not found\n Please enter your Token in the settings", "PC Control Bot", 0)
+            return None
+        file.close()
+        return data
+
+    MessageBox(None,'ERROR: no data found\nEnter the data in the program!' , 'PC Control Bot', 0)
+    return None

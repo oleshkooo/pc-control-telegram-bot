@@ -1,0 +1,59 @@
+<RCC>
+  <qresource prefix="menuIcons">
+    <file>btnTurnONSelected.png</file>
+    <file>iconInfo.png</file>
+    <file>icon.png</file>
+    <file>iconInfoBlue.png</file>
+    <file>iconInfoSelected.png</file>
+    <file>iconKey.png</file>
+    <file>iconKeyBlue.png</file>
+    <file>iconKeySelected.png</file>
+    <file>iconSettings.png</file>
+    <file>iconSettingsBlue.png</file>
+    <file>iconSettingsSelected.png</file>
+    <file>iconHomeSelected.png</file>
+    <file>iconHomeBlue.png</file>
+    <file>iconHome.png</file>
+  </qresource>
+  <qresource prefix="developers">
+    <file>imageBLVX.png</file>
+    <file>imageOleshko.png</file>
+  </qresource>
+  <qresource prefix="btnBackgrounds">
+    <file>btnChangeToken.png</file>
+    <file>btnTurnOFF.png</file>
+    <file>btnTurnON.png</file>
+    <file>btnNextPg5.png</file>
+    <file>btnNextPg4.png</file>
+    <file>btnNextPg3.png</file>
+    <file>btnNextPg2.png</file>
+    <file>btnNextPg1.png</file>
+    <file>btnChangeUsername.png</file>
+  </qresource>
+  <qresource prefix="msgBackgrounds">
+    <file>msgBotStopping.png</file>
+    <file>msgBotStarting.png</file>
+    <file>msgEnterUsername.png</file>
+    <file>msgEnterToken.png</file>
+    <file>msgGetKey.png</file>
+    <file>msgTerms.png</file>
+    <file>msgHi.png</file>
+    <file>msgBotIsOFF.png</file>
+    <file>msgBotIsON.png</file>
+  </qresource>
+  <qresource prefix="backgrounds">
+    <file>ImageBot.png</file>
+    <file>background.png</file>
+  </qresource>
+  <qresource prefix="btnSelectedback">
+    <file>btnChangeTokenSelected.png</file>
+    <file>btnChangeUsernameSelected.png</file>
+    <file>btnTurnOFFSelected.png</file>
+    <file>btnTurnONSelected.png</file>
+    <file>btnNextSelectedPg1.png</file>
+    <file>btnNextSelectedPg5.png</file>
+    <file>btnNextSelectedPg2.png</file>
+    <file>btnNextSelectedPg3.png</file>
+    <file>btnNextSelectedPg4.png</file>
+  </qresource>
+</RCC>
