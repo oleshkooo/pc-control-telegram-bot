@@ -1,4 +1,6 @@
 ################################################################################ modules
+from fileinput import close
+from tempfile import TemporaryFile
 from inputData import getData, Data
 
 ################################################################################ system
@@ -61,39 +63,42 @@ import pickle
 ################################################################################ __download flie from browser
 from pySmartDL import SmartDL
 ################################################################################ __ DB
-import pymysql
+import psycopg2
 
 ################################################################################ ToDo-list
 # spotify control
 
+
+#TODO:
+# create some functions
 ################################################################################? global variables
 
 # Message Box
 MessageBox = ctypes.windll.user32.MessageBoxW
 
 
+connection = None
 # bot
 try:
-    connection = pymysql.connect(
-        host = "sql11.freesqldatabase.com",
-        port = 3306,
-        user = "sql11509414",
-        password = "alNPD6NZjz",
-        database = "sql11509414",
-        cursorclass = pymysql.cursors.DictCursor
-    )
-
+    connection = psycopg2.connect(host = "ec2-52-210-97-223.eu-west-1.compute.amazonaws.com", 
+                dbname = "db94i1b9859g8s", 
+                port = 5432, 
+                user = "grbawpeflszfaz",
+                password = "5fc56fe96d52143753df34e3e0ee8e421b4ea48ea22e9c399a7f87d40dceb457")
     id = wmi.WMI().Win32_BaseBoard()[0].SerialNumber.strip()
     with connection.cursor() as cursor:
-                select_query = f'SELECT * FROM `data` WHERE `id` = "{id}"'
+                select_query = f"SELECT * FROM data WHERE id = '{id}'"
                 cursor.execute(select_query)
                 result = cursor.fetchall()
     if not result:
         MessageBox(None,'The program is not activated', 'PC Control lBot', 0)
         sys.exit()
 except:
-    MessageBox(None,'ERROR: There is no internet connection', 'PC Control Bot', 0)
+    MessageBox(None,'ERROR: no internet connection or database problems', 'PC Control Bot', 0)
     sys.exit()
+finally:
+    if connection:
+        connection.close()
 
 
 # bot
@@ -102,7 +107,6 @@ data = getData()
 if data == None:
     sys.exit()
 
-    
 bot = telebot.TeleBot(data.TOKEN)
 
 # volume
@@ -130,27 +134,16 @@ count = 0
 
 
 
-# functions
-# def searchList(li, item):
-#     for i in range(len(li)):
-#         if li[i] == item:
-#             return True
-#     return False
-
-
-
 ################################################################################* __start
 @bot.message_handler(commands = ['start'])
 def Start(message):
-    try:
-        if message.from_user.username != data.USER:
-            Warn(message)
-            
-        bot.send_message(message.chat.id, '🚀  Bot launched')
-        bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown')
-    except:
-        return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+    if message.from_user.username != data.USER:
+        Warn(message)
+        
+    bot.send_message(message.chat.id, '🚀  Bot launched')
+    bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown',reply_markup = home_keyboard)
 
+ 
 
 ################################################################################* help
 @bot.message_handler(commands = ['help'])
@@ -171,11 +164,12 @@ def Help(message):
 *⏩  /next* - Next track\n
 *➕  /add_app* - Add application to list\n
 *➖  /remove_app* - Remove application from list\n
-*📖  /app_list* - List of applications\n
+*🧾  /app_list* - List of applications\n
 *👟  /open_app [app name]* - Open application\n
 *🌐  /browser* - Open URL in browser\n
 *🔍  /search* - Search in browser\n
 *▶️  /youtube* - Search in youtube\n
+*🗨️ /write* - Уnter the text in the input field\n
 *📺  /fullscreen* - Fullscreenf for program\n
 *📺  /fullmovie* - Fullscreen for movie\n
 *⬆️  /download* - Download file from pc\n
@@ -186,6 +180,9 @@ def Help(message):
 *🔽  /pgdown* - Page down\n
 *💀  /kill* - Kill process\n
 *❌  /close* - Close current program\n
+*📕  /close_tab* - Close current tab\n
+*📖  /show* - Show the desktop\n
+*📗  /hide* - Hide the desktop\n
 *🖱  /mouse* - Set mouse position\n
 *🔒  /lock* - Lock your PC\n
 *⚠️  /shutdown* - Shutdown your PC\n
@@ -202,6 +199,8 @@ def Help(message):
 
 
 # buttons
+
+# mouseButton
 mouse_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
 btnup = types.KeyboardButton('⬆️')
 btndown = types.KeyboardButton('⬇️')
@@ -215,21 +214,39 @@ mouse_keyboard.row(btnLeft, btnClick, btnRight)
 mouse_keyboard.row(btndown)
 mouse_keyboard.row(btncurs, btnCancel)
 
-# home_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
-# btnVol = types.KeyboardButton('🔊 Volume')
-# btnBright = types.KeyboardButton('☀️ Brightness')
-# btnYoutube = types.KeyboardButton('▶️ Youtube')
-# btnSearch = types.KeyboardButton('🔍 Search')
-# btnBrowser = types.KeyboardButton('🖱 Browser')
 
-# bntInfo = types.KeyboardButton('⚙️ Info')
-# btnStatus = types.KeyboardButton('🖥️ Status')
-# btnOtherCommands = types.KeyboardButton('📃 Other commands')
+#homeButton
 
-# home_keyboard.row(btnVol, btnBright)
-# home_keyboard.row(btnYoutube,btnSearch,btnBrowser)
-# home_keyboard.row(bntInfo,btnStatus,btnOtherCommands)
+home_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
 
+
+pg = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+btnShutdown = types.KeyboardButton('⚠️ Shutdown')
+btnReboot = types.KeyboardButton('🔄 Reboot')
+btnSleep = types.KeyboardButton('💤 Sleep')
+btnLock = types.KeyboardButton('🔒 Lock')
+
+home_keyboard.row(btnShutdown, btnReboot,btnSleep,btnLock)
+
+#contol music and video
+pgControlWatch = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+btnVol = types.KeyboardButton('🔊 Volume')
+btnBright = types.KeyboardButton('☀️ Brightness')
+btnYoutube = types.KeyboardButton('▶️ Youtube')
+btnSearch = types.KeyboardButton('🔍 Search')
+btnBrowser = types.KeyboardButton('🌐 Browser')
+btnFullscreen = types.KeyboardButton('📺\ Fullscreen')
+btnFullmovie = types.KeyboardButton('📺 Fullmovie')
+btnPrev = types.KeyboardButton('⏪ Prev')
+btnPause = types.KeyboardButton('⏯\n Pause')
+btnNext = types.KeyboardButton('⏩ Next')
+btnBack = types.KeyboardButton('🔙 Back')
+btnClose = types.KeyboardButton('❌ Close app')
+
+pgControlWatch.row(btnYoutube,btnSearch,btnBrowser)
+pgControlWatch.row(btnBright,btnVol,btnFullmovie)
+pgControlWatch.row(btnPrev,btnPause,btnNext)
+pgControlWatch.row(btnBack,btnFullscreen,btnClose)
 
 ################################################################################* __screenshot
 @bot.message_handler(commands = ['screenshot', 'screen'])
@@ -304,22 +321,19 @@ def writeFile(keys):
 ################################################################################* __write text
 @bot.message_handler(commands = ['write', 'text'])
 def WriteText(message):
-    try:
-        if message.from_user.username != data.USER:
-            Warn(message)
-
-        bot.send_message(message.chat.id, '💬  Enter text to *write*:', parse_mode = 'Markdown')
-        bot.register_next_step_handler(message, WriteText_process)
-    except:
-        return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+    if message.from_user.username != data.USER:
+        Warn(message)
+    bot.send_message(message.chat.id, '💬  Enter text to *write*:', parse_mode = 'Markdown')
+    bot.register_next_step_handler(message, WriteText_process)
 def WriteText_process(message):
     try:
         text = message.text
         bot.send_chat_action(message.chat.id, 'typing')
         bot.send_message(message.chat.id, f'*✏️  Writing text*  "{text}"', parse_mode = 'Markdown')
-        pyautogui.typewrite(text, interval = 0.05)
+        pyautogui.typewrite(text, interval = 0.02)
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+
 
 
 ################################################################################* __volume
@@ -435,6 +449,7 @@ def Next(message):
         bot.send_message(message.chat.id, '*⏩  Next track*', parse_mode = 'Markdown')
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+
 
 
 ################################################################################* __add to dict
@@ -621,6 +636,37 @@ def Youtube_process(message):
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
 def openInYoutube(link):
     webbrowser.open(link, new = 0)
+
+
+
+################################################################################* __close tab
+@bot.message_handler(commands = ['close_tab'])
+def closeTab(message):
+    if message.from_user.username != data.USER:
+        Warn(message)
+    pyautogui.hotkey('ctrl', 'w')
+    bot.send_message(message.chat.id, '✅ *Tab closed*', parse_mode = 'Markdown')
+
+
+
+################################################################################* __hide desktop
+@bot.message_handler(commands = ['hide'])
+def hide(message):
+    if message.from_user.username != data.USER:
+            Warn(message)
+    pyautogui.hotkey('win', 'm')
+    bot.send_message(message.chat.id, '✅ *Hide the desktop*', parse_mode = 'Markdown')
+
+
+
+################################################################################* __show desktop
+@bot.message_handler(commands = ['show'])
+def show(message):
+    if message.from_user.username != data.USER:
+            Warn(message)
+    pyautogui.hotkey('win','shiftleft', 'm')
+    bot.send_message(message.chat.id, '✅ *Show the desktop*', parse_mode = 'Markdown')
+
 
 
 ################################################################################* __fullscreen
@@ -871,7 +917,7 @@ def PcStatus(message):
         bot.send_message(message.chat.id, msg, parse_mode = "markdown")
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
-def getSize(bytes, suffix = ""):
+def getSize(bytes, suffix = "B"):
     factor = 1024
     for unit in ["", "K", "M", "G", "T", "P"]:
         if bytes < factor:
@@ -1197,4 +1243,13 @@ def MsgBox_thread(message):
     
 
 ################################################################################ infinite polling
-bot.polling(none_stop = True)
+
+if __name__ == '__main__':
+    while True:
+        try:
+            bot.polling(none_stop = True)
+        except Exception as e:
+            time.sleep(3)
+            print(e)
+
+        
