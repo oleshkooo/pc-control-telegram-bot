@@ -139,6 +139,7 @@ count = 0
 def Start(message):
     if message.from_user.username != data.USER:
         Warn(message)
+        return
         
     bot.send_message(message.chat.id, '🚀  Bot launched')
     bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown',reply_markup = home_keyboard)
@@ -150,6 +151,7 @@ def Start(message):
 def Help(message):
     if message.from_user.username != data.USER:
         Warn(message)
+        return
         
     bot.send_message(message.chat.id, '''
 *ℹ️  Information about bot:*\n\n
@@ -255,6 +257,7 @@ def Screenshot(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
             
         bot.send_chat_action(message.chat.id ,'upload_photo')
         bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
@@ -276,6 +279,7 @@ def Keylogger(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         global keyloggerFlag
         keyloggerFlag = False
@@ -323,6 +327,8 @@ def writeFile(keys):
 def WriteText(message):
     if message.from_user.username != data.USER:
         Warn(message)
+        return
+    
     bot.send_message(message.chat.id, '💬  Enter text to *write*:', parse_mode = 'Markdown')
     bot.register_next_step_handler(message, WriteText_process)
 def WriteText_process(message):
@@ -342,6 +348,7 @@ def Volume(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         currentVolume = getCurrentVolume()
         emoji = getVolumeEmoji(currentVolume)
@@ -354,6 +361,7 @@ def Volume_process(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         volume = message.text
         volumeInt = int(volume)
@@ -380,6 +388,7 @@ def getVolumeEmoji(volume):
 def Brightness(message):
     if message.from_user.username != data.USER:
         Warn(message)
+        return
    
     currentBrightness = getCurrentBrightness()
     emoji = getBrightnessEmoji(currentBrightness)
@@ -418,6 +427,7 @@ def Previous(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         pyautogui.press('prevtrack')
         bot.send_message(message.chat.id, '*⏪  Previous track*', parse_mode = 'Markdown')
@@ -431,6 +441,7 @@ def Playpause(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
         
         pyautogui.press('playpause')
         bot.send_message(message.chat.id, '*⏯  Play/Pause track*', parse_mode = 'Markdown')
@@ -444,6 +455,7 @@ def Next(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         pyautogui.press('nexttrack')
         bot.send_message(message.chat.id, '*⏩  Next track*', parse_mode = 'Markdown')
@@ -458,6 +470,7 @@ def AddApp(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
         
         bot.send_message(message.chat.id,f'📝 Enter the application *path*', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, AddApp_process_1)
@@ -496,6 +509,7 @@ def OpenApp(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if len(data.dict) == 0:
             bot.send_message(message.chat.id, '⛔ The *dictionary* is empty', parse_mode = 'Markdown')
@@ -518,6 +532,7 @@ def AppList(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if len(data.dict) == 0:
             bot.send_message(message.chat.id, '⛔ The *dictionary* is empty', parse_mode = 'Markdown')
@@ -538,6 +553,7 @@ def RemoveApp(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if len(data.dict) == 0:
             bot.send_message(message.chat.id, '⛔ The *dictionary* is empty', parse_mode = 'Markdown')
@@ -562,6 +578,7 @@ def Browser(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id, 'Enter URL:', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, Browser_process)
@@ -582,6 +599,7 @@ def Search(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id, 'Enter search query:', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, Search_process)
@@ -602,6 +620,7 @@ def Youtube(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id, 'Enter search query:', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, Youtube_process)
@@ -644,6 +663,8 @@ def openInYoutube(link):
 def closeTab(message):
     if message.from_user.username != data.USER:
         Warn(message)
+        return
+    
     pyautogui.hotkey('ctrl', 'w')
     bot.send_message(message.chat.id, '✅ *Tab closed*', parse_mode = 'Markdown')
 
@@ -654,6 +675,8 @@ def closeTab(message):
 def hide(message):
     if message.from_user.username != data.USER:
             Warn(message)
+            return
+        
     pyautogui.hotkey('win', 'm')
     bot.send_message(message.chat.id, '✅ *Hide the desktop*', parse_mode = 'Markdown')
 
@@ -664,6 +687,8 @@ def hide(message):
 def show(message):
     if message.from_user.username != data.USER:
             Warn(message)
+            return
+        
     pyautogui.hotkey('win','shiftleft', 'm')
     bot.send_message(message.chat.id, '✅ *Show the desktop*', parse_mode = 'Markdown')
 
@@ -675,6 +700,7 @@ def Fullscreen(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         pyautogui.press('f11')
         bot.send_message(message.chat.id, '📺  *Program* is *fullscreen* now', parse_mode = 'Markdown')
@@ -686,6 +712,7 @@ def FullscreenVideo(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         pyautogui.press('f')
         bot.send_message(message.chat.id, '📺  *Movie* is *fullscreen* now', parse_mode = 'Markdown')
@@ -699,7 +726,8 @@ def Close(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
-
+            return
+        
         bot.send_message(message.chat.id, '*❌  Closing*  *program*', parse_mode = 'Markdown')
         pyautogui.hotkey('altleft', 'f4')
     except:
@@ -712,6 +740,7 @@ def Lock(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if platform.system() != "Windows":
             return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
@@ -727,6 +756,7 @@ def Shutdown(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if platform.system() != "Windows":
             return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
@@ -754,6 +784,7 @@ def Reeboot(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         if platform.system() != "Windows":
             return bot.send_message(message.chat.id, 'This feature is currently working only on *Windows*', parse_mode = 'Markdown')
@@ -781,6 +812,7 @@ def Sleep(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         global sleepFlag
         sleepFlag = False
@@ -820,6 +852,7 @@ def Battery(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         battery = getBattery()
         status = isCharging()
@@ -848,6 +881,7 @@ def SendIP(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         ip = getIP()
         bot.send_message(message.chat.id, f'🛰️ Your *IP* is *{ip}*', parse_mode = 'Markdown')
@@ -863,6 +897,7 @@ def SendID(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.from_user.id, f'🆔  Your *ID* is *{message.from_user.id}*', parse_mode = 'Markdown')
     except:
@@ -875,6 +910,8 @@ def PcInfo(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
+        
         uname = platform.uname()
 
         msg = '⚙️  *Info about your PC*\n\n'
@@ -899,6 +936,7 @@ def PcStatus(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
         virtualMem = psutil.virtual_memory()
         battery = getBattery()
         status = isCharging()
@@ -928,16 +966,12 @@ def getSize(bytes, suffix = "B"):
 ################################################################################* __stop
 @bot.message_handler(commands = ['stop'])
 def Stop(message):
-    try:
-        if message.from_user.username != data.USER:
-            Warn(message)
+    if message.from_user.username != data.USER:
+        Warn(message)
+        return
 
-        bot.send_message(message.chat.id, '*⛔  Bot stopped*', parse_mode = 'Markdown')
-        bot.stop_polling()
-        print('⛔ Bot stopped')
-        sys.exit()
-    except:
-        return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+    bot.send_message(message.chat.id, '*⛔  Bot stopped*', parse_mode = 'Markdown')
+    subprocess.call('taskkill /f /im host.exe', shell = True)    
 
 
 ################################################################################* __upload file
@@ -946,6 +980,7 @@ def UploadFile(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id,'💾 Send *file*', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, UploadFile_process)
@@ -972,6 +1007,7 @@ def DownloadFile(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id,'🛣️ Enter the file path')
         bot.register_next_step_handler(message, DownloadFile_process)
@@ -999,6 +1035,7 @@ def DownloadUrl(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id,'🔗 Enter the *URL*', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, DownloadUrl_process)
@@ -1023,6 +1060,7 @@ def Cmd(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         command = message.text.replace('/cmd','')
         if command == '' or command.find('cmd') == 1:
@@ -1041,7 +1079,7 @@ def PgUp(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
-
+            return
         pyautogui.press('pgup')
         bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
     except:
@@ -1054,6 +1092,7 @@ def PgDown(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         pyautogui.press('pgdown')
         bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
@@ -1117,23 +1156,21 @@ def CallbackHandler(call):
 
 ################################################################################ ! __warn
 def Warn(message):
-    try:
-        bot.send_chat_action(message.chat.id, 'typing')
-        #bot.send_chat_action(id_user, 'typing')
-        #other user
-        bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
-        #main
-        # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
-        # if message.from_user.username != None:
-        #     msg += f'Username:  *@{message.from_user.username}*\n'
-        # if message.from_user.first_name != None:
-        #     msg += f'First Name:  *{message.from_user.first_name}*\n'
-        # if message.from_user.last_name != None:
-        #     msg += f'Last Name:  *{message.from_user.last_name}*\n'
-        # msg += f'User Id:  *{message.from_user.id}*\n\n'
-        # bot.send_message(data.ID, f'{msg}', parse_mode = 'Markdown')
-    except:
-        pass
+    bot.send_chat_action(message.chat.id, 'typing')
+    #bot.send_chat_action(id_user, 'typing')
+    #other user
+    bot.send_message(message.chat.id, '⚠️  *Warning*\n\n' + 'You are not allowed to use this bot', parse_mode = 'Markdown')
+    #main
+    # msg = f'*⚠️  Someone just used  {message.text}*\n\n'
+    # if message.from_user.username != None:
+    #     msg += f'Username:  *@{message.from_user.username}*\n'
+    # if message.from_user.first_name != None:
+    #     msg += f'First Name:  *{message.from_user.first_name}*\n'
+    # if message.from_user.last_name != None:
+    #     msg += f'Last Name:  *{message.from_user.last_name}*\n'
+    # msg += f'User Id:  *{message.from_user.id}*\n\n'
+    # bot.send_message(data.ID, f'{msg}', parse_mode = 'Markdown')
+
     
 
 ################################################################################ ? __mouse 
@@ -1142,6 +1179,7 @@ def Mouse(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id, '🖱  *Mouse* is *now* *controlled*', reply_markup = mouse_keyboard, parse_mode = 'Markdown' )
         bot.register_next_step_handler(message, Mouse_process)
@@ -1205,6 +1243,7 @@ def MouseSettings_process(message):
 def Kill(message):
         if message.from_user.username != data.USER:
             Warn(message)
+            return
             
         bot.send_message(message.chat.id,'💀 Enter the *name* of the *process* you want to *kill*:', parse_mode = 'Markdown')
         bot.register_next_step_handler(message, Kill_process)
@@ -1225,6 +1264,7 @@ def Msgbox(message):
     try:
         if message.from_user.username != data.USER:
             Warn(message)
+            return
 
         bot.send_message(message.chat.id, '📝 Enter the text that should be displayed on the screen')
         bot.register_next_step_handler(message, Msgbox_process)

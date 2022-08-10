@@ -11,8 +11,8 @@ import pickle
 from resource import resources
 import ctypes
 import time
-# from host.inputData import *
 
+botFlag = False
 
 class Ui_MainWindow(QMainWindow):
     tray_icon = None
@@ -733,11 +733,6 @@ class Ui_MainWindow(QMainWindow):
     def retranslateMainWindows(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "PC Control Bot"))
-        # self.lineEditUsername.setToolTip(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        #     "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        #     "p, li { white-space: pre-wrap; }\n"
-        #     "</style></head><body style=\" font-family:\'Open Sans\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-        #     "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; color:#858d98;\">Your Username</span></p></body></html>"))
         self.lineChangeUsername.setPlaceholderText(_translate("MainWindow", "Your Username"))
         self.lineChangeToken.setPlaceholderText(_translate("MainWindow", "Your TOKEN"))
         
@@ -749,24 +744,28 @@ class Ui_MainWindow(QMainWindow):
         self.lineEditEnterToken.setPlaceholderText(_translate("MainWindow", "Your TOKEN"))
     
     def checkBotStatus(self): 
+        global botFlag 
         prev = False
         
+        
         while True:
-            flag = False
+            botFlag = False
             
             for proc in psutil.process_iter():
                 if proc.name() == "host.exe":
-                    flag = True
+                    botFlag = True
                     break
-            if prev != flag:       
-                if flag:
+            if prev != botFlag:       
+                if botFlag:
                     btnStatus = 'OFF'
                     botStatus = 'ON'
                     prev = True
+                    botFlag = True
                 else:
                     btnStatus = 'ON'
                     botStatus = 'OFF'     
                     prev = False
+                    botFlag = False
                          
                 self.msgStatusBot.setStyleSheet("border-radius: 16px;\n"
                     f"background-image: url(:/msgBackgrounds/msgBotIs{botStatus}.png);")
@@ -796,6 +795,7 @@ class Data:
         self.dict = {}
 
 def writeToFile(TOKEN,USERNAME):
+    
     PATH = os.path.expanduser('~') + '\\AppData\\Local'
 
     if not os.path.exists(PATH + '\\PC Control Bot Data'):
@@ -818,6 +818,9 @@ def writeToFile(TOKEN,USERNAME):
     pickle.dump(data, file)
     file.close()
 
+    if botFlag:
+        subprocess.call('taskkill /f /im host.exe', shell = True)    
+
 def connectToDB():
     connection = psycopg2.connect( host = "ec2-52-210-97-223.eu-west-1.compute.amazonaws.com", 
                 dbname = "db94i1b9859g8s", 
@@ -835,6 +838,5 @@ if __name__ == "__main__":
     
     th = Thread(target = MainWindow.checkBotStatus, args = (), daemon = True)
     th.start()
-    
     sys.exit(app.exec_())
     

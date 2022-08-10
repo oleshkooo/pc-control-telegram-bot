@@ -36,4 +36,4 @@ if not os.path.exists(PATH + 'PC Control Bot Host'):
         arguments ='/cmd {%s} -new_console' % name,
     )        
 
-subprocess.call('cd UI && GUI.exe', shell = True)
+subprocess.call('cd GUI && GUI.exe', shell = True)
