@@ -1,0 +1,47 @@
+@import 'Variables';
+
+#header {
+    min-height: 110vh;
+    background: linear-gradient(243.85deg, $gradient-2 -2.12%, $gradient-1 101.32%);
+    // background: linear-gradient(243.85deg, $gradient-1 -2.12%, $gradient-2 101.32%);
+    color: $white;
+
+    .inner {
+        width: 100%;
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .left, .right {
+            width: 50%;
+        }
+
+        // .left {
+        // }
+
+        .right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .icon-svg {
+                width: 70%;
+                height: 100%;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #header {
+        .inner {
+            text-align: center;
+
+            .left, .right {
+                width: 100%;
+            }
+        }
+    }
+}

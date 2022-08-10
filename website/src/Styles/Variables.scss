@@ -1,0 +1,40 @@
+$black: #222;
+$white: #fff;
+
+$primary: #3478F7;
+$secondary: #858D98;
+$tertiary: #353739;
+
+$white-msg: #E3F0E6;
+
+// $gradient-1: #5FA2B3;
+// $gradient-2: #8BBE55;
+$gradient-1: #348F50;
+$gradient-2: #56B4D3;
+
+$transition: 0.3s ease;
+
+
+
+.text-shadow {
+  text-shadow: 0px 0px 30px rgba(0,0,0,0.4);
+}
+.text-main {
+  color: #061E37;
+}
+.bg-main {
+  background: #061E37;
+}
+.border-color-main {
+  border-color: #061E37;
+}
+.border-main {
+  border-radius: 25px;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.fixed {
+    position: fixed;
+}
