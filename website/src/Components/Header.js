@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import Navbar from './Navbar'
 import IconSvg from './IconSvg'
 
+const duration = 10
+
 const Header = () => {
 
     return (
