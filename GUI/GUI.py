@@ -1,6 +1,5 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QSystemTrayIcon,QAction,QMenu,qApp,QMainWindow
+from PyQt5.QtWidgets import QSystemTrayIcon,QAction,QMenu,qApp,QMainWindow,QGraphicsDropShadowEffect
 import psutil
 from threading import Thread
 import subprocess
@@ -12,7 +11,10 @@ from resource import resources
 import ctypes
 import time
 
+
 botFlag = False
+MessageBox = ctypes.windll.user32.MessageBoxW
+
 
 class Ui_MainWindow(QMainWindow):
     tray_icon = None
@@ -22,6 +24,7 @@ class Ui_MainWindow(QMainWindow):
         MainWindow.resize(1200, 800)
         MainWindow.setMinimumSize(QtCore.QSize(1200, 800))
         MainWindow.setMaximumSize(QtCore.QSize(1200, 800))
+
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/menuIcons/icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -42,12 +45,18 @@ class Ui_MainWindow(QMainWindow):
         self.HomeWindow.setGeometry(QtCore.QRect(0, 0, 1100, 805))
         self.HomeWindow.setTitle("")
         self.HomeWindow.setObjectName("HomeWindow")
-        self.imageBot = QtWidgets.QFrame(self.HomeWindow)
-        self.imageBot.setGeometry(QtCore.QRect(417, 128, 266, 266))
-        self.imageBot.setStyleSheet("background-image: url(:/backgrounds/ImageBot.png);")
-        self.imageBot.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.imageBot.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.imageBot.setObjectName("imageBot")
+        self.botIcon = QtWidgets.QFrame(self.HomeWindow)
+        self.botIcon.setGeometry(QtCore.QRect(417, 128, 266, 266))
+        self.botIcon.setStyleSheet("background-image: url(:/backgrounds/ImageBot.png);")
+        self.botIcon.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.botIcon.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.botIcon.setObjectName("imageBot")
+        
+        effect = QGraphicsDropShadowEffect()
+        effect.setOffset(5, 5)
+        effect.setBlurRadius(50)
+        self.botIcon.setGraphicsEffect(effect)
+        
         self.btnTurn = QtWidgets.QPushButton(self.HomeWindow)
         self.btnTurn.setGeometry(QtCore.QRect(388, 576, 320, 64))
         self.btnTurn.setStyleSheet("QPushButton\n"
@@ -167,18 +176,32 @@ class Ui_MainWindow(QMainWindow):
         self.InfoWindow.setGeometry(QtCore.QRect(0, 0, 1100, 805))
         self.InfoWindow.setTitle("")
         self.InfoWindow.setObjectName("InfoWindow")
+        
+
+        effect = QGraphicsDropShadowEffect()
+        effect.setOffset(5, 5)
+        effect.setBlurRadius(50)
+
         self.imageOleshko = QtWidgets.QFrame(self.InfoWindow)
         self.imageOleshko.setGeometry(QtCore.QRect(206, 260, 266, 265))
         self.imageOleshko.setStyleSheet("background-image: url(:/developers/imageOleshko.png);")
         self.imageOleshko.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.imageOleshko.setFrameShadow(QtWidgets.QFrame.Raised)
         self.imageOleshko.setObjectName("imageOleshko")
+        self.imageOleshko.setGraphicsEffect(effect)
+        
+        effect = QGraphicsDropShadowEffect()
+        effect.setOffset(5, 5)
+        effect.setBlurRadius(50)
+        
         self.imageBLVX = QtWidgets.QFrame(self.InfoWindow)
         self.imageBLVX.setGeometry(QtCore.QRect(630, 260, 266, 265))
         self.imageBLVX.setStyleSheet("background-image: url(:/developers/imageBLVX.png);")
         self.imageBLVX.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.imageBLVX.setFrameShadow(QtWidgets.QFrame.Raised)
         self.imageBLVX.setObjectName("imageBLVX")
+        self.imageBLVX.setGraphicsEffect(effect)
+        
         self.msgDevelopedBy = QtWidgets.QFrame(self.InfoWindow)
         self.msgDevelopedBy.setGeometry(QtCore.QRect(455, 137, 187, 60))
         self.msgDevelopedBy.setStyleSheet("background-image: url(:/developers/msgDevelopedBy.png);")
@@ -278,7 +301,6 @@ class Ui_MainWindow(QMainWindow):
         iconNames = ['Home','Settings','Info']
         arrayBtn = [self.btnHome,self.btnChangeData,self.btnInfo]
         _translate = QtCore.QCoreApplication.translate
-        MessageBox = ctypes.windll.user32.MessageBoxW
         
         def cteateAuthorizedWindows(): 
             self.AuthorizedWindows = QtWidgets.QGroupBox(self.centralwidget)
@@ -291,12 +313,17 @@ class Ui_MainWindow(QMainWindow):
     "")
             self.AuthorizedWindows.setTitle("")
             self.AuthorizedWindows.setObjectName("AuthorizedWindows")
+            effect = QGraphicsDropShadowEffect()
+            effect.setOffset(5, 5)
+            effect.setBlurRadius(50)
             self.botIcon = QtWidgets.QFrame(self.AuthorizedWindows)
             self.botIcon.setGeometry(QtCore.QRect(467, 90, 267, 267))
             self.botIcon.setStyleSheet("background-image: url(:/backgrounds/ImageBot.png);")
             self.botIcon.setFrameShape(QtWidgets.QFrame.StyledPanel)
             self.botIcon.setFrameShadow(QtWidgets.QFrame.Raised)
             self.botIcon.setObjectName("botIcon")
+            self.botIcon.setGraphicsEffect(effect)
+            
             self.WelcomeWindow = QtWidgets.QGroupBox(self.AuthorizedWindows)
             self.WelcomeWindow.setGeometry(QtCore.QRect(0, 0, 1205, 805))
             self.WelcomeWindow.setTitle("")
@@ -583,7 +610,6 @@ class Ui_MainWindow(QMainWindow):
                         self.menu.show()
                         writeToFile(TOKEN,USERNAME)
                         
-
             welcomeWin()
 
         def changeTurn(self):
@@ -735,6 +761,7 @@ class Ui_MainWindow(QMainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "PC Control Bot"))
         self.lineChangeUsername.setPlaceholderText(_translate("MainWindow", "Your Username"))
         self.lineChangeToken.setPlaceholderText(_translate("MainWindow", "Your TOKEN"))
+        self.lineChangeUsername.setMaxLength(100)
         
     def retranslateAuthorizedWindows(self, AuthorizedWindows):
         _translate = QtCore.QCoreApplication.translate
@@ -771,13 +798,18 @@ class Ui_MainWindow(QMainWindow):
                     f"background-image: url(:/msgBackgrounds/msgBotIs{botStatus}.png);")
                 self.btnTurn.setStyleSheet("QPushButton\n"
                     "{\n"
+                    "    border: none;\n"
                     "    border-radius: 10px;\n"
-                    f"    background-image: url(:/btnBackgrounds/btnTurn{btnStatus}.png);\n"
+                    f"    background-image: url(:/btnBackgrounds/btnTurn{btnStatus}.png)\n"
                     "}\n"
                     "QPushButton:hover\n"
                     "{\n"
-                    "    border-radius: 15px;\n"
-                    "}")           
+                    f"    background-image: url(:/btnSelectedback/btnTurn{btnStatus}Selected.png)\n"
+                    "}\n"
+                    "QPushButton:pressed\n"
+                    "{\n"
+                    "    border-radius: 17px;\n"
+                    "}")          
             time.sleep(5)
     
     def closeEvent(self, event):
@@ -788,38 +820,34 @@ class Ui_MainWindow(QMainWindow):
 ##########################################################################################################################################################################################*
 
 
+
 class Data:
     def __init__(self,TOKEN,USERNAME):
-        self.USER = USERNAME
         self.TOKEN = TOKEN
+        self.USER = USERNAME
         self.dict = {}
-
-def writeToFile(TOKEN,USERNAME):
-    
-    PATH = os.path.expanduser('~') + '\\AppData\\Local'
-
-    if not os.path.exists(PATH + '\\PC Control Bot Data'):
-        subprocess.Popen('mkdir "PC Control Bot Data"', cwd = PATH,shell = True)
-    PATH += '\\PC Control Bot Data\\data.bin'
-    
-    if os.path.exists(PATH):
-        file = open(PATH,'rb')
-        data = pickle.load(file)
-        file.close()
         
+def writeToFile(TOKEN,USERNAME):
+    PATH = os.path.expanduser('~') + '\\AppData\\Local\\PC Control Bot Data'
+
+    if not os.path.exists(PATH):
+        os.mkdir(PATH)
+       
+    PATH += '\\data.bin'
+    
+    if os.path.exists(PATH):            
+        with open(PATH, 'rb') as file:
+            data = pickle.load(file)
+
         if TOKEN != None:
             data.TOKEN = TOKEN
         elif USERNAME != None:
             data.USER = USERNAME
     else:        
         data = Data(TOKEN,USERNAME)
-    
-    file = open(PATH, 'wb')
-    pickle.dump(data, file)
-    file.close()
-
-    if botFlag:
-        subprocess.call('taskkill /f /im host.exe', shell = True)    
+        
+    with open(PATH,'wb') as file:
+        pickle.dump(data,file)
 
 def connectToDB():
     connection = psycopg2.connect( host = "ec2-52-210-97-223.eu-west-1.compute.amazonaws.com", 

