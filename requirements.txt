@@ -1,0 +1,13 @@
+wmi
+pytelegrambotapi
+wheel
+mss
+pynput
+comtypespycaw
+pycaw
+screen_brightness_control
+pyautogui
+youtube-search-python
+mouse
+pySmartDL
+PyQt5
