@@ -1,0 +1,121 @@
+@import 'Variables';
+
+#navbar {
+    color: inherit;
+
+    .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .logo {
+            display: flex;
+            max-width: 50%;
+            
+            a {
+                display: flex;
+                align-items: center;
+
+                .paper-plane-svg {
+                    width: 11%;
+                    overflow: visible;
+                    stroke: #fff;
+                    stroke-width: 10;
+                    stroke-linejoin: round;
+                    stroke-linecap: round;
+                }
+            }
+        }
+    
+        .links {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+
+            .btn-bars {
+                z-index: 9999999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: $white;
+                background: none;
+                border: none;
+                outline: none;
+            }
+        }
+    }
+}
+
+#navbar, #menu {
+    a {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition: $transition;
+        
+        &:hover {
+            color: darken($white, 15%);
+            transition: $transition;
+        }
+        &:active {
+            color: darken($white, 20%);
+            transition: $transition;
+        }
+    }
+}
+
+#menu {
+    display: flex;
+    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    justify-content: flex-end;
+    align-items: center;
+    position: fixed;
+    
+    .menu-inner {
+        width: 65%;
+        height: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        // background: rgba(0, 0, 0, 0.5);
+        // backdrop-filter: blur(10px);
+
+        background: rgba(0, 0, 0, 0.20);
+        box-shadow: 0 0px 40px 0 rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(15px);
+
+        .links {
+            width: 80%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            
+            .visible {
+                width: 80%;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #navbar {
+        .nav {
+            .logo {
+                a {
+                    .paper-plane-svg {
+                        width: 17%;
+                    }
+                }
+            }
+        }
+    }
+    #menu {
+        display: flex;
+    }
+}

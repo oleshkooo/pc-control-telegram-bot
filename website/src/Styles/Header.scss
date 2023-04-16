@@ -1,0 +1,64 @@
+@import 'Variables';
+
+#header {
+    min-height: 110vh;
+    color: $white;
+    // background: linear-gradient(-45deg, $gradient-1, $gradient-2, #2666de);
+    // background: linear-gradient(243.85deg, $gradient-2 -2.12%, $gradient-1 101.32%);
+    // background: linear-gradient(243.85deg, $gradient-1 -2.12%, $gradient-2 101.32%);
+
+    background: linear-gradient(to right bottom, #00ff5b, #00f36a, #00e676, #00d97e, #00cc84, #00c39f, #00b8b1, #00abb7, #009bd8, #0085fe, #0065ff, #0014ff);
+
+    background-size: 400% 400%;
+    background-position: 0 50%;
+    animation: background 30s infinite 3s;
+
+    .inner {
+        width: 100%;
+        min-height: 85vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+
+        .left, .right {
+            width: 50%;
+        }
+
+
+        .right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            .icon-svg {
+                width: 70%;
+                height: 100%;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #header {
+        .inner {
+            text-align: center;
+
+            .left, .right {
+                width: 100%;
+            }
+        }
+    }
+}
+
+@keyframes background {
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
